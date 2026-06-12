@@ -637,7 +637,53 @@
   .glossary-full { font-size: 0.72rem; color: var(--text-muted); margin: 2px 0; }
   .glossary-meaning { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
 
-</style>/head>
+
+  /* ===== 主Tab区（总判断下方） ===== */
+  .main-tabs-card {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-top: -8px;
+  }
+  .main-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .main-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .main-tab .main-tab-icon { font-size: 1.2rem; margin-bottom: 4px; }
+  .main-tab .main-tab-desc { font-size: 0.68rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+  .main-tab:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+  .main-tab.active {
+    background: rgba(6,182,212,0.1);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 16px rgba(6,182,212,0.15);
+  }
+  .main-tab.active .main-tab-desc { color: rgba(6,182,212,0.7); }
+  .section-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(30,41,59,0.5);
+  }
+
+</style>head>
 <body>
 
 <!-- ===== 头部 ===== -->
@@ -646,20 +692,7 @@
   <div class="subtitle" id="pageSubtitle">看懂昨夜美股、今日A股、今晚美股如何互相影响，判断科技行情是继续扩散、局部分化，还是需要避险</div>
   <div class="update-time" id="updateTime">数据更新：加载中...<span class="health-indicator none" id="healthBadge" title="数据源健康检查结果"><span class="health-indicator-dot"></span><span id="healthBadgeText">未检查</span></span></div>
   <div class="stage-badge" id="stageBadge" style="display:none;"></div>
-  <div class="view-tabs">
-    <button class="view-tab" data-view="chain" onclick="switchView('chain')">
-      <span class="tab-icon">🔗</span>发生了什么
-      <span class="tab-desc">美股和A股发生了什么</span>
-    </button>
-    <button class="view-tab active" data-view="verify" onclick="switchView('verify')">
-      <span class="tab-icon">🔍</span>今天看什么
-      <span class="tab-desc">A股科技还能不能稳</span>
-    </button>
-    <button class="view-tab" data-view="theme" onclick="switchView('theme')">
-      <span class="tab-icon">🧩</span>哪些方向
-      <span class="tab-desc">光模块、设备、算力谁最强</span>
-    </button>
-  </div>
+
 </div>
 
 <div class="container">
@@ -706,13 +739,27 @@
     </div>
   </div>
 
+  <!-- ===== 主Tab区（放在总判断下面）===== -->
+  <div class="card main-tabs-card always-visible">
+    <div class="main-tabs">
+      <button class="main-tab active" data-view="verify" onclick="switchView('verify')">
+        <span class="main-tab-icon">🔍</span>今天看什么
+        <span class="main-tab-desc">今天盯这几个信号</span>
+      </button>
+      <button class="main-tab" data-view="theme" onclick="switchView('theme')">
+        <span class="main-tab-icon">🧩</span>哪些方向
+        <span class="main-tab-desc">哪些板块能碰哪些别追</span>
+      </button>
+      <button class="main-tab" data-view="chain" onclick="switchView('chain')">
+        <span class="main-tab-icon">🔗</span>发生了什么
+        <span class="main-tab-desc">美股和A股的因果链</span>
+      </button>
+    </div>
+  </div>
+
   <!-- ===== Section 2：今天看什么 (verify + chain 视角可见) ===== -->
   <div class="card view-section visible" id="viewVerify">
-    <div class="layer-badge">第二层 · 今天盯什么</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-yellow);">🔍</span>
-      今天A股科技还能不能稳？对照下面几条看盘面
-    </div>
+    <div class="section-subtitle">对照下面几条信号看盘面</div>
     <div class="checklist" id="checklist"></div>
     <div class="color-legend">
       <span><span class="legend-dot green"></span>偏健康</span>
@@ -723,21 +770,13 @@
 
   <!-- ===== Section 3：为什么涨 (chain 视角可见) ===== -->
   <div class="card view-section" id="viewChain">
-    <div class="layer-badge">第三层 · 为什么涨</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(16,185,129,0.15);color:var(--accent-green);">⚡</span>
-      事件时间线 · 看看全球市场是怎么一步步传导的 · 点击节点看详情
-    </div>
+    <div class="section-subtitle">全球市场是怎么一步步传导的 · 点击节点看详情</div>
     <div class="event-chain" id="eventChain"></div>
   </div>
 
   <!-- ===== Section 4：哪些方向 (theme + verify 视角可见) ===== -->
   <div class="card view-section" id="viewTheme">
-    <div class="layer-badge">第四层 · 哪些方向</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(139,92,246,0.15);color:var(--accent-purple);">🧩</span>
-      哪些方向还能看 · 分清长期主线和今天能不能碰
-    </div>
+    <div class="section-subtitle">分清长期主线和今天能不能碰</div>
         <div class="theme-view-tabs">
       <button class="theme-view-tab active" onclick="switchThemeView('matrix')">🧩 矩阵视图</button>
       <button class="theme-view-tab" onclick="switchThemeView('list')">📋 列表视图</button>
@@ -1359,15 +1398,28 @@ const DATA_FILE = 'dashboard-data.json';
 
 // ===== 视角切换 =====
 function switchView(view) {
-  document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
-  const mapping = {
-    verify: ['viewVerify', 'viewTheme'],
-    chain: ['viewChain', 'viewVerify'],
-    theme: ['viewTheme']
+  // 更新主tab高亮
+  document.querySelectorAll('.main-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.view === view);
+  });
+  // 每次只显示一个section
+  var allSections = ['viewVerify', 'viewChain', 'viewTheme'];
+  var viewMap = {
+    verify: 'viewVerify',
+    chain: 'viewChain',
+    theme: 'viewTheme'
   };
-  const show = mapping[view] || [];
-  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('visible'));
-  show.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('visible'); });
+  var target = viewMap[view] || 'viewVerify';
+  allSections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      if (id === target) {
+        el.classList.add('visible');
+      } else {
+        el.classList.remove('visible');
+      }
+    }
+  });
 }
 
 // ===== 主题卡片联动 =====
@@ -1418,14 +1470,18 @@ function adaptData(json) {
   // 替换文本中的相对日期（返回新文本，相对日期后加绝对日期括号）
   function annotateDate(text) {
     if (!text || !baseDate) return text;
-    // 替换规则：今晚 → 今晚（6/11）、明天 → 明天（6/12）、今日 → 今日（6/11）
+    var todayShort = getAbsoluteDate(0, 'short');
+    var tmrwShort = getAbsoluteDate(1, 'short');
+    // 先清除已有的日期括号标注（避免重复）
+    text = text.replace(/[（(]\d{1,2}\/\d{1,2}晚?[）)]/g, '');
+    // 替换规则：今晚 → 今晚（6/11晚）、明天 → 明天（6/12）等
     return text
-      .replace(/今晚/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '晚）'; })
-      .replace(/明天/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; })
-      .replace(/明日/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; })
-      .replace(/今日/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '）'; })
-      .replace(/当天/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '）'; })
-      .replace(/次日/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; });
+      .replace(/今晚/g, '今晚（' + todayShort + '晚）')
+      .replace(/明天/g, '明天（' + tmrwShort + '）')
+      .replace(/明日/g, '明日（' + tmrwShort + '）')
+      .replace(/今日/g, '今日（' + todayShort + '）')
+      .replace(/当天/g, '当天（' + todayShort + '）')
+      .replace(/次日/g, '次日（' + tmrwShort + '）');
   }
 
   let result = {
@@ -1512,7 +1568,8 @@ function adaptData(json) {
       }
     })(),
     actionGuide: json.actionGuide || json.verdict?.actionGuide || null,
-    stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' }
+    stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' },
+    glossary: json.glossary || []
   };
     // 为文案字段标注绝对日期（P0-4）
   result.plainText = annotateDate(result.plainText || '');
@@ -1767,7 +1824,7 @@ function render(D) {
       '<div class="check-col-h">看什么</div>' +
       '<div class="check-col-h">当前状态</div>' +
       '<div class="check-col-h">怎么确认</div>' +
-      '<div class="check-col-h">错了看这里</div>' +
+      '<div class="check-col-h">什么情况要小心</div>' +
     '</div>' +
     D.checklist.map(function(c) {
       var iconMap = { pass: '✅', fail: '❌', pending: '⏳' };
