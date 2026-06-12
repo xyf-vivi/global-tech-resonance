@@ -1,0 +1,1542 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美股带动A股验证看板</title>
+<style>
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-card: #111827;
+    --bg-card-hover: #1a2332;
+    --border: #1e293b;
+    --border-accent: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-green: #10b981;
+    --accent-yellow: #f59e0b;
+    --accent-orange: #f97316;
+    --accent-red: #ef4444;
+    --accent-purple: #8b5cf6;
+    --accent-pink: #ec4899;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ===== 头部 ===== */
+  .header { text-align: center; padding: 28px 20px 12px; position: relative; }
+  .header::after {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 80%; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+  }
+  .header h1 {
+    font-size: 1.6rem; font-weight: 700;
+    background: linear-gradient(135deg, #06b6d4, #3b82f6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: 2px;
+  }
+  .header .subtitle { color: var(--text-secondary); font-size: 0.82rem; margin-top: 4px; }
+  .header .update-time { color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
+
+  /* ===== 视角切换 ===== */
+  .view-tabs { display: flex; justify-content: center; gap: 8px; margin: 16px auto 0; max-width: 600px; }
+  .view-tab {
+    flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: transparent; color: var(--text-secondary); font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; transition: all 0.3s; text-align: center; position: relative;
+  }
+  .view-tab .tab-desc { display: block; font-size: 0.68rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+  .view-tab:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+  .view-tab.active { background: rgba(6,182,212,0.1); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .view-tab.active .tab-desc { color: rgba(6,182,212,0.7); }
+
+  /* ===== 主容器 ===== */
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: grid; gap: 20px; }
+
+  /* ===== 通用卡片 ===== */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 1.05rem; font-weight: 600; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+
+  /* ===== 层标签 ===== */
+  .layer-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.7rem; color: var(--accent-cyan); text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 8px; opacity: 0.7;
+  }
+  .layer-badge::before { content: ''; width: 20px; height: 1px; background: var(--accent-cyan); }
+
+  /* ===== Section 1：今日总判断 ===== */
+  .verdict-banner {
+    text-align: center; padding: 28px 24px;
+    background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(59,130,246,0.04));
+    border: 1px solid rgba(6,182,212,0.2); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .verdict-main {
+    font-size: 1.1rem; font-weight: 600; color: var(--text-primary);
+    line-height: 1.8; max-width: 960px; margin: 0 auto;
+  }
+  .verdict-main .highlight { color: var(--accent-cyan); font-weight: 700; }
+  .verdict-main .warn { color: var(--accent-yellow); font-weight: 700; }
+  .verdict-main .green { color: var(--accent-green); font-weight: 700; }
+  .verdict-main .red { color: var(--accent-red); font-weight: 700; }
+  .verdict-row {
+    display: grid; grid-template-columns: 200px 1fr; gap: 28px;
+    align-items: center; margin-top: 24px; text-align: left;
+  }
+  .gauge-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .gauge-svg { width: 190px; height: 115px; }
+  .gauge-label { font-size: 0.78rem; font-weight: 600; color: var(--accent-cyan); }
+  .gauge-verdict {
+    font-size: 0.85rem; font-weight: 600; padding: 3px 14px; border-radius: 20px;
+    background: rgba(245,158,11,0.12); color: var(--accent-yellow);
+    border: 1px solid rgba(245,158,11,0.3);
+  }
+  .gauge-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; max-width: 190px; text-align: center; }
+  .drivers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .driver-card {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; position: relative; overflow: hidden;
+  }
+  .driver-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .driver-card:nth-child(1)::before { background: var(--accent-blue); }
+  .driver-card:nth-child(2)::before { background: var(--accent-cyan); }
+  .driver-card:nth-child(3)::before { background: var(--accent-yellow); }
+  .driver-num {
+    font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px;
+  }
+  .driver-text { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ===== Section 2：今日验证清单 ===== */
+  .checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .check-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; cursor: default; transition: border-color 0.3s;
+  }
+  .check-item:hover { border-color: var(--border-accent); }
+  .check-icon {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-accent);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; margin-top: 1px; transition: all 0.3s;
+  }
+  .check-icon.pass { border-color: var(--accent-green); color: var(--accent-green); background: rgba(16,185,129,0.1); }
+  .check-icon.fail { border-color: var(--accent-red); color: var(--accent-red); background: rgba(239,68,68,0.1); }
+  .check-icon.pending { border-color: var(--accent-yellow); color: var(--accent-yellow); background: rgba(245,158,11,0.1); animation: pulse 2s ease-in-out infinite; }
+  .check-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+  .check-text strong { color: var(--text-primary); font-weight: 600; }
+
+  /* ===== Section 3：传导事件链 ===== */
+  .event-chain { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .event-chain::before {
+    content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(180deg, var(--accent-green), var(--accent-red), var(--accent-yellow), var(--accent-cyan));
+    opacity: 0.3;
+  }
+  .event-node {
+    display: grid; grid-template-columns: 36px 1fr; gap: 16px;
+    position: relative; cursor: pointer; transition: all 0.3s;
+  }
+  .event-node:hover .event-content { background: var(--bg-card-hover); border-color: var(--border-accent); }
+  .event-dot-col { display: flex; flex-direction: column; align-items: center; padding-top: 16px; }
+  .event-dot {
+    width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--bg-primary);
+    z-index: 2; flex-shrink: 0;
+  }
+  .event-dot.green { background: var(--accent-green); box-shadow: 0 0 10px rgba(16,185,129,0.5); }
+  .event-dot.red { background: var(--accent-red); box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+  .event-dot.yellow { background: var(--accent-yellow); box-shadow: 0 0 10px rgba(245,158,11,0.5); }
+  .event-dot.cyan { background: var(--accent-cyan); box-shadow: 0 0 10px rgba(6,182,212,0.5); }
+  .event-dot.current { width: 18px; height: 18px; animation: pulse 2s ease-in-out infinite; }
+  .event-content {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px; margin-bottom: 8px; transition: all 0.3s;
+  }
+  .event-node.expanded .event-content { border-color: var(--accent-cyan); background: rgba(6,182,212,0.04); }
+  .event-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .event-date { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; }
+  .event-title { font-weight: 700; font-size: 0.95rem; }
+  .event-status {
+    font-size: 0.68rem; font-weight: 700; padding: 2px 10px; border-radius: 4px; letter-spacing: 1px;
+  }
+  .event-status.fire { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .event-status.amplify { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+  .event-status.pullback { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+  .event-status.verify { background: rgba(245,158,11,0.15); color: var(--accent-yellow); }
+  .event-status.reverify { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+  .event-detail { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px; }
+  .event-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .event-tag {
+    font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  .event-tag.up { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.2); }
+  .event-tag.down { background: rgba(239,68,68,0.1); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.2); }
+  .event-tag.neutral { background: rgba(100,116,139,0.1); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.2); }
+  .event-expand {
+    display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+    font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7;
+  }
+  .event-node.expanded .event-expand { display: block; }
+  .event-expand .expand-label {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent-cyan);
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .event-expand ul { list-style: none; padding: 0; }
+  .event-expand li { padding: 3px 0; }
+  .event-expand li::before { content: '→'; color: var(--accent-cyan); margin-right: 6px; }
+  .event-hint {
+    font-size: 0.7rem; color: var(--text-muted); margin-top: 4px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .event-node:hover .event-hint { opacity: 1; }
+
+  /* ===== Section 4：主题矩阵 ===== */
+  .theme-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+  .theme-card {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; transition: all 0.3s; cursor: pointer;
+  }
+  .theme-card:hover { border-color: var(--border-accent); }
+  .theme-card.theme-highlight {
+    border-color: rgba(6,182,212,0.5) !important; background: rgba(6,182,212,0.06);
+    box-shadow: 0 0 20px rgba(6,182,212,0.1);
+  }
+  .theme-mainline { border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.04); }
+  .theme-spread { border-color: rgba(16,185,129,0.2); }
+  .theme-watching { opacity: 0.75; }
+  .theme-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .theme-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .theme-name { font-weight: 600; font-size: 0.95rem; }
+  .theme-heat {
+    margin-left: auto; font-size: 0.68rem; font-weight: 700; padding: 2px 10px;
+    border-radius: 4px; letter-spacing: 1px;
+  }
+  .theme-heat.heat-main { background: rgba(59,130,246,0.15); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.3); }
+  .theme-heat.heat-spread { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
+  .theme-heat.heat-watch { background: rgba(100,116,139,0.1); color: var(--text-muted); border: 1px solid rgba(100,116,139,0.2); }
+  .theme-logic {
+    font-size: 0.78rem; color: var(--accent-cyan); background: rgba(6,182,212,0.08);
+    border-left: 3px solid var(--accent-cyan); padding: 6px 10px; margin-bottom: 10px;
+    line-height: 1.5; border-radius: 0 6px 6px 0;
+  }
+  .theme-section { margin-bottom: 8px; }
+  .theme-section:last-child { margin-bottom: 0; }
+  .theme-section-label {
+    font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 5px;
+  }
+  .theme-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .theme-tag {
+    font-size: 0.73rem; padding: 2px 9px; border-radius: 6px;
+    font-family: 'SF Mono', 'Consolas', monospace; font-weight: 500; transition: all 0.3s;
+  }
+  .theme-tag.overseas { background: rgba(59,130,246,0.1); color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.2); }
+  .theme-tag.china { background: rgba(16,185,129,0.1); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.2); }
+  .theme-tag.highlight { box-shadow: 0 0 8px rgba(6,182,212,0.5); border-color: var(--accent-cyan) !important; }
+  .theme-verify {
+    display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
+    font-size: 0.8rem; color: var(--accent-yellow); line-height: 1.5;
+  }
+  .theme-card.theme-highlight .theme-verify { display: block; }
+
+  /* ===== Section 5：共振健康度 ===== */
+  .health-layer { display: grid; gap: 14px; }
+  .health-summary {
+    display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .health-score {
+    text-align: center; padding: 12px; border-radius: 10px;
+    background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+  }
+  .health-score-num { font-size: 2.2rem; font-weight: 800; color: var(--accent-yellow); line-height: 1; }
+  .health-score-label { margin-top: 6px; font-size: 0.82rem; color: var(--accent-yellow); font-weight: 700; }
+  .health-summary-text { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+  .health-summary-text strong { color: var(--text-primary); }
+  .health-details { display: grid; gap: 10px; }
+  .health-item {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .health-item-top { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .health-name { font-weight: 700; font-size: 0.9rem; color: var(--text-primary); }
+  .health-status { font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 4px; white-space: nowrap; }
+  .health-status.safe { background: rgba(16,185,129,0.1); color: var(--accent-green); }
+  .health-status.watch { background: rgba(245,158,11,0.1); color: var(--accent-yellow); }
+  .health-status.warn { background: rgba(239,68,68,0.1); color: var(--accent-red); }
+  .health-bar-row { display: grid; grid-template-columns: 1fr 44px; gap: 10px; align-items: center; margin-bottom: 7px; }
+  .health-bar { height: 8px; border-radius: 999px; background: rgba(100,116,139,0.18); overflow: hidden; }
+  .health-bar-fill { height: 100%; border-radius: 999px; }
+  .health-bar-fill.green { background: var(--accent-green); }
+  .health-bar-fill.yellow { background: var(--accent-yellow); }
+  .health-bar-fill.red { background: var(--accent-red); }
+  .health-score-small { font-size: 0.75rem; color: var(--text-muted); text-align: right; }
+  .health-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.55; }
+  /* ===== 视角控制 ===== */
+  .view-section { display: none; }
+  .view-section.visible { display: block; }
+  /* 始终显示的section */
+  .always-visible { display: block; }
+
+  /* ===== 底部 ===== */
+  .footer {
+    text-align: center; padding: 30px 20px; color: var(--text-muted);
+    font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 20px;
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 1024px) {
+    .verdict-row { grid-template-columns: 1fr; }
+    .drivers-grid { grid-template-columns: 1fr; }
+    .health-layer { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.2rem; }
+    .verdict-main { font-size: 0.95rem; }
+    .theme-matrix { grid-template-columns: 1fr; }
+    .drivers-grid { grid-template-columns: 1fr; }
+    .view-tabs { flex-direction: column; }
+  }
+
+  /* ===== 动画 ===== */
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card, .verdict-banner { animation: slideIn 0.5s ease-out both; }
+
+  /* ===== 主题联动高亮 ===== */
+  .theme-tag.linked-highlight {
+    box-shadow: 0 0 10px rgba(6,182,212,0.6) !important;
+    border-color: var(--accent-cyan) !important;
+    background: rgba(6,182,212,0.15) !important;
+    color: var(--accent-cyan) !important;
+  }
+
+
+  /* ===== v6: 白话解释层 ===== */
+  .verdict-plain {
+    margin-top: 14px; padding: 12px 18px;
+    background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 8px; font-size: 0.88rem; color: var(--accent-green);
+    line-height: 1.7; text-align: left; max-width: 960px; margin-left: auto; margin-right: auto;
+  }
+  .verdict-plain::before {
+    content: '💬 '; font-size: 1rem;
+  }
+  .gauge-scale {
+    display: flex; justify-content: space-between; width: 100%; max-width: 190px;
+    margin-top: 6px; font-size: 0.62rem; color: var(--text-muted);
+  }
+  .gauge-scale span { text-align: center; }
+  .gauge-scale .scale-green { color: var(--accent-green); }
+  .gauge-scale .scale-yellow { color: var(--accent-yellow); }
+  .gauge-scale .scale-red { color: var(--accent-red); }
+
+  /* 规则解释 */
+  .reasoning-toggle {
+    margin-top: 16px; padding: 10px 14px; cursor: pointer;
+    background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px; color: var(--accent-yellow); font-size: 0.8rem;
+    font-weight: 600; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .reasoning-toggle:hover { background: rgba(245,158,11,0.12); }
+  .reasoning-toggle-icon { font-size: 0.65rem; transition: transform 0.2s; display: inline-block; }
+  .reasoning-panel {
+    margin-top: 8px; padding: 14px 16px;
+    background: rgba(30,41,59,0.5); border: 1px solid rgba(148,163,184,0.15);
+    border-radius: 8px;
+  }
+  .reasoning-step {
+    display: flex; gap: 10px; padding: 8px 0;
+    border-bottom: 1px solid rgba(148,163,184,0.08);
+    align-items: flex-start;
+  }
+  .reasoning-step:last-child { border-bottom: none; }
+  .reasoning-step-badge {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+  }
+  .reasoning-step-badge.pass { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .reasoning-step-badge.fail { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+  .reasoning-step-content { flex: 1; }
+  .reasoning-step-label { font-size: 0.78rem; font-weight: 600; color: var(--text-primary); }
+  .reasoning-step-detail { font-size: 0.74rem; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+  .reasoning-final {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(245,158,11,0.08); border-radius: 6px;
+    font-size: 0.82rem; font-weight: 600; color: var(--accent-yellow);
+    text-align: center;
+  }
+
+  .check-structured { display: flex; flex-direction: column; gap: 6px; }
+  .check-structured .check-label {
+    font-size: 0.7rem; color: var(--text-muted); font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .check-structured .check-value {
+    font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5;
+  }
+  .check-structured .check-value strong { color: var(--text-primary); }
+  .event-plain {
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(6,182,212,0.06); border-left: 3px solid var(--accent-cyan);
+    font-size: 0.82rem; color: var(--accent-cyan); line-height: 1.6;
+    border-radius: 0 6px 6px 0;
+  }
+  .event-plain::before { content: '💬 '; }
+  .color-legend {
+    display: flex; gap: 16px; justify-content: center; margin-top: 10px;
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+  .color-legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .legend-dot.green { background: var(--accent-green); }
+  .legend-dot.yellow { background: var(--accent-yellow); }
+  .legend-dot.red { background: var(--accent-red); }
+  .theme-section-label-plain {
+    font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px;
+  }
+
+  /* ===== 数据健康指示器 ===== */
+  .health-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-left: 12px;
+    font-weight: 600;
+    vertical-align: middle;
+  }
+  .health-indicator.passed {
+    background: rgba(16,185,129,0.12);
+    color: var(--accent-green);
+  }
+  .health-indicator.failed {
+    background: rgba(239,68,68,0.12);
+    color: var(--accent-red);
+  }
+  .health-indicator.none {
+    background: rgba(100,116,139,0.12);
+    color: var(--text-muted);
+  }
+  .health-indicator-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .health-indicator.passed .health-indicator-dot { background: var(--accent-green); }
+  .health-indicator.failed .health-indicator-dot { background: var(--accent-red); }
+  .health-indicator.none .health-indicator-dot { background: var(--text-muted); }
+
+  /* Theme Dual Tags */
+  .theme-dual-tags { display: flex; gap: 6px; margin: 6px 0 8px; flex-wrap: wrap; }
+  .theme-today-status {
+    font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+  }
+  .theme-today-status.status-follow { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .theme-today-status.status-repair { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .theme-today-status.status-observe { background: rgba(100,116,139,0.1); color: #94a3b8; border: 1px solid rgba(100,116,139,0.2); }
+
+  /* v8 机会分级 */
+  .theme-opportunity {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    margin: 6px 0 2px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .theme-opportunity.status-track {
+    background: rgba(16,185,129,0.15);
+    color: #10b981;
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .theme-opportunity.status-wait {
+    background: rgba(245,158,11,0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245,158,11,0.3);
+  }
+  .theme-opportunity.status-avoid {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .theme-opportunity-reason {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 2px 8px 6px;
+    line-height: 1.4;
+  }
+
+  .theme-today-status.status-avoid { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+  /* Action Guide */
+  .action-guide {
+    margin: 12px 0 4px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .action-guide-stance {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .action-guide-stance .stance-label { margin-right: 6px; }
+  .action-guide-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .action-guide-watch {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .action-guide-watch span {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 2px 4px 2px 0;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.06);
+  }
+  .action-guide.stance-attack .action-guide-stance { color: #10b981; }
+  .action-guide.stance-watch .action-guide-stance { color: #f59e0b; }
+  .action-guide.stance-defend .action-guide-stance { color: #ef4444; }
+
+  /* 盘中阶段标签 */
+  .stage-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 6px; padding: 4px 14px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
+    background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3);
+    color: var(--accent-cyan);
+  }
+  .stage-badge .stage-icon { font-size: 0.9rem; }
+  .stage-badge .stage-note { font-size: 0.68rem; color: var(--text-muted); margin-left: 4px; }
+  /* 今日策略-不做什么 */
+  .action-guide-donot {
+    margin-top: 10px; padding: 10px 14px;
+    background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px; font-size: 0.82rem; color: var(--accent-red);
+    line-height: 1.6;
+  }
+  .action-guide-donot::before { content: '🚫 不做什么：'; font-weight: 700; }
+
+</style>
+</head>
+<body>
+
+<!-- ===== 头部 ===== -->
+<div class="header">
+  <h1>🌍 全球科技早盘机会雷达</h1>
+  <div class="subtitle">看懂美股科技对A股的影响，判断今天是跟涨、修复，还是先避险</div>
+  <div class="update-time" id="updateTime">数据更新：加载中...<span class="health-indicator none" id="healthBadge" title="数据源健康检查结果"><span class="health-indicator-dot"></span><span id="healthBadgeText">未检查</span></span></div>
+  <div class="stage-badge" id="stageBadge" style="display:none;"></div>
+  <div class="view-tabs">
+    <button class="view-tab" data-view="chain" onclick="switchView('chain')">
+      <span class="tab-icon">🔗</span>发生了什么
+      <span class="tab-desc">美股和A股发生了什么</span>
+    </button>
+    <button class="view-tab active" data-view="verify" onclick="switchView('verify')">
+      <span class="tab-icon">🔍</span>今天看什么
+      <span class="tab-desc">A股科技还能不能稳</span>
+    </button>
+    <button class="view-tab" data-view="theme" onclick="switchView('theme')">
+      <span class="tab-icon">🧩</span>哪些方向
+      <span class="tab-desc">光模块、设备、算力谁最强</span>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===== Section 1：今日总判断 (始终可见) ===== -->
+  <div class="verdict-banner always-visible">
+    <div class="layer-badge">第一层 · 今天怎么回事</div>
+    <div class="verdict-main" id="verdictMain"></div>
+    <div class="verdict-plain" id="verdictPlain"></div>
+    <div class="action-guide" id="actionGuide" style="display:none;"></div>
+    <div class="verdict-row">
+      <div class="gauge-wrapper">
+        <svg class="gauge-svg" viewBox="0 0 220 130">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ef4444"/>
+              <stop offset="50%" style="stop-color:#f59e0b"/>
+              <stop offset="100%" style="stop-color:#10b981"/>
+            </linearGradient>
+          </defs>
+          <path d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round"/>
+          <path id="gaugeArc" d="M 20 120 A 90 90 0 0 1 200 120" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 999"/>
+          <circle id="gaugeNeedle" cx="110" cy="120" r="5" fill="var(--accent-yellow)"/>
+          <text id="gaugeValue" x="110" y="98" text-anchor="middle" fill="var(--text-primary)" font-size="28" font-weight="700">--</text>
+        </svg>
+        <div class="gauge-label">传导温度</div>
+        <div class="gauge-verdict" id="gaugeVerdict">--</div>
+        <div class="gauge-sub" id="gaugeSub"></div>
+        <div class="gauge-scale">
+          <span class="scale-red">50以下<br>转弱</span>
+          <span class="scale-yellow">50-70<br>验证期</span>
+          <span class="scale-green">70以上<br>强共振</span>
+        </div>
+      </div>
+      <div class="drivers-grid" id="driversGrid"></div>
+    </div>
+    <!-- 规则解释（可折叠） -->
+    <div class="reasoning-toggle" id="reasoningToggle" onclick="toggleReasoning()">
+      <span class="reasoning-toggle-icon" id="reasoningIcon">▶</span> 这个结论是怎么推导出来的？
+    </div>
+    <div class="reasoning-panel" id="reasoningPanel" style="display:none;">
+      <div id="reasoningSteps"></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ===== Section 2：今天看什么 (verify + chain 视角可见) ===== -->
+  <div class="card view-section visible" id="viewVerify">
+    <div class="layer-badge">第二层 · 今天盯什么</div>
+    <div class="card-title">
+      <span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-yellow);">🔍</span>
+      今天A股科技还能不能稳？对照下面几条看盘面
+    </div>
+    <div class="checklist" id="checklist"></div>
+    <div class="color-legend">
+      <span><span class="legend-dot green"></span>偏健康</span>
+      <span><span class="legend-dot yellow"></span>需要观察</span>
+      <span><span class="legend-dot red"></span>风险升高</span>
+    </div>
+  </div>
+
+  <!-- ===== Section 3：为什么涨 (chain 视角可见) ===== -->
+  <div class="card view-section" id="viewChain">
+    <div class="layer-badge">第三层 · 为什么涨</div>
+    <div class="card-title">
+      <span class="icon" style="background:rgba(16,185,129,0.15);color:var(--accent-green);">⚡</span>
+      事件时间线 · 看看全球市场是怎么一步步传导的 · 点击节点看详情
+    </div>
+    <div class="event-chain" id="eventChain"></div>
+  </div>
+
+  <!-- ===== Section 4：哪些方向 (theme + verify 视角可见) ===== -->
+  <div class="card view-section" id="viewTheme">
+    <div class="layer-badge">第四层 · 哪些方向</div>
+    <div class="card-title">
+      <span class="icon" style="background:rgba(139,92,246,0.15);color:var(--accent-purple);">🧩</span>
+      哪些方向还能看 · 分清长期主线和今天能不能碰
+    </div>
+    <div class="theme-matrix" id="themeMatrix"></div>
+  </div>
+
+  <!-- ===== Section 5：风险分数 (始终可见) ===== -->
+  <div class="card always-visible">
+    <div class="layer-badge">第五层 · 风险分数</div>
+    <div class="card-title">
+      <span class="icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan);">🩺</span>
+      风险分数
+    </div>
+    <div class="health-layer">
+      <div class="health-summary" id="healthSummary"></div>
+      <div class="health-details" id="healthDetails"></div>
+    </div>
+    <div class="color-legend">
+      <span><span class="legend-dot green"></span>偏健康</span>
+      <span><span class="legend-dot yellow"></span>需要观察</span>
+      <span><span class="legend-dot red"></span>风险升高</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== 底部 ===== -->
+<div class="footer">
+  美股带动A股验证看板 · 数据仅供参考，不构成投资建议 · 核心不是排行榜，而是帮你判断这轮行情还能不能跟
+</div>
+
+
+<!-- 内嵌兜底数据 -->
+<script type="application/json" id="embedded-data">
+{
+  "_meta": {
+    "version": "7.0-scripted",
+    "updated": "2026-06-11 18:05",
+    "updatedBy": "auto-evening",
+    "nextUpdate": "明天 08:30",
+    "note": "盘后全面更新：A股收盘+美股盘中数据",
+    "healthCheck": {
+      "passed": true,
+      "totalErrors": 0,
+      "totalWarnings": 0,
+      "checkedAt": "2026-06-11 18:05",
+      "details": "A股指数3/3查询成功，龙头6/6查询成功，港股3/3查询成功，美股7/7查询成功"
+    }
+  },
+  "stage": {
+    "type": "evening",
+    "label": "晚间复盘",
+    "goal": "汇总全天数据，预判今晚美股和明日A股方向"
+  },
+  "verdict": {
+    "sentence": "美股走强A股分化：设备承接强，光模块走弱",
+    "temperature": 58,
+    "temperatureLabel": "分化观察",
+    "temperatureSub": "美股走强但A股分化，设备强于光模块，先观察",
+    "plainText": "简单说：美股昨晚和今晚都涨了，但A股今天分化，设备股强、光模块弱，先看晚上美股能不能持续。",
+    "actionGuide": {
+      "stance": "先观察",
+      "summary": "传导分化，设备方向有独立逻辑但光模块走弱，先看今晚美股能否延续再做判断",
+      "watch": ["半导体设备能否延续强势", "光模块是否止跌企稳", "美股SOXX今晚收盘是否守住涨幅"],
+      "doNot": "不要因为某个科技股单独翻红就追，今天分化说明不是全面共振"
+    },
+    "reasoning": {
+      "ruleId": "transmission_mixed",
+      "ruleName": "传导分化",
+      "score": 58,
+      "steps": [
+        {
+          "label": "美股点火是否成立",
+          "passed": true,
+          "detail": "成立：SOXX +2.49%（≥1.5%阈值），NVDA +1.24%"
+        },
+        {
+          "label": "A股承接是否成立",
+          "passed": false,
+          "detail": "部分成立：科创50 +0.62%（<2%阈值），创业板指 -1.13%，但设备股（北方华创+2.96%、中微+4.85%）强势"
+        },
+        {
+          "label": "美股今晚延续性",
+          "passed": true,
+          "detail": "成立：SOXX盘中+2.49%，NVDA +1.24%，美股继续走强"
+        },
+        {
+          "label": "辅助信号",
+          "passed": false,
+          "detail": "光模块走弱（中际旭创-2.01%、新易盛-4.55%），港股分化"
+        },
+        {
+          "label": "最终推导",
+          "passed": true,
+          "detail": "美股点火✅ + A股分化⚠️ + 美股延续✅ → 传导分化 58/100"
+        }
+      ]
+    }
+  },
+  "drivers": [
+    {
+      "title": "美股科技继续走强",
+      "detail": "6月10日晚 SOXX +2.49%、NVDA +1.24%；6月11日晚盘中 SOXX 再涨 +2.49%，美股科技情绪持续强势"
+    },
+    {
+      "title": "A股半导体设备独立强势",
+      "detail": "北方华创 +2.96%、中微公司 +4.85%，国产替代逻辑不依赖海外，资金主动加仓设备方向"
+    },
+    {
+      "title": "光模块承压，映射方向走弱",
+      "detail": "中际旭创 -2.01%、新易盛 -4.55%，海外算力链映射方向今日未能跟随美股走强，资金出现切换"
+    }
+  ],
+  "eventChain": [
+    {
+      "id": "ignite",
+      "date": "6月10日 晚",
+      "title": "美股科技点火",
+      "status": "fire",
+      "statusText": "已点火",
+      "dotColor": "green",
+      "detail": "SOXX +2.49%、英伟达 NVDA +1.24%、台积电 TSM +2.45%，美股科技全面走强。",
+      "tags": [
+        { "text": "SOXX +2.49%", "type": "up" },
+        { "text": "英伟达 NVDA +1.24%", "type": "up" },
+        { "text": "台积电 TSM +2.45%", "type": "up" }
+      ],
+      "expand": {
+        "label": "带动主题",
+        "items": [
+          "半导体设备：美股走强提振A股设备板块情绪",
+          "AI芯片：海外算力需求叙事持续",
+          "光模块：海外映射方向，但今日A股未能跟随"
+        ]
+      },
+      "plainText": "海外昨晚涨了，给A股科技提供了情绪引子。"
+    },
+    {
+      "id": "follow",
+      "date": "6月11日 白天",
+      "title": "A股分化承接",
+      "status": "mixed",
+      "statusText": "分化",
+      "dotColor": "yellow",
+      "detail": "A股今日分化：科创50 +0.62%，创业板指 -1.13%；半导体设备（北方华创+2.96%、中微+4.85%）强势，但光模块（中际旭创-2.01%、新易盛-4.55%）走弱。",
+      "tags": [
+        { "text": "科创50 +0.62%", "type": "up" },
+        { "text": "北方华创 +2.96%", "type": "up" },
+        { "text": "新易盛 -4.55%", "type": "down" }
+      ],
+      "expand": {
+        "label": "A股分化方向",
+        "items": [
+          "半导体设备强势：国产替代逻辑独立，不依赖海外",
+          "光模块走弱：海外映射方向资金撤退，未能跟随美股",
+          "科创50微涨：整体承接力度有限"
+        ]
+      },
+      "plainText": "美股涨了，A股分化跟：设备股接住了，光模块没接住。"
+    },
+    {
+      "id": "pullback",
+      "date": "6月10日 晚",
+      "title": "美股实际未回调，继续走强",
+      "status": "fire",
+      "statusText": "未回调",
+      "dotColor": "green",
+      "detail": "6月10日晚美股实际走强（SOXX +2.49%），而非回调；6月9日晚的回调已被扭转，海外情绪重新转向乐观。",
+      "tags": [
+        { "text": "SOXX +2.49%", "type": "up" },
+        { "text": "NVDA +1.24%", "type": "up" },
+        { "text": "美股未回调", "type": "up" }
+      ],
+      "expand": {
+        "label": "海外情绪",
+        "items": [
+          "美股科技重新走强，A股设备方向受益",
+          "光模块未能跟随，说明映射链存在阻滞",
+          "今晚美股延续性是关键验证"
+        ]
+      },
+      "plainText": "昨晚美股实际是涨的，不是跌的，海外情绪重新转向乐观。"
+    },
+    {
+      "id": "verify_a",
+      "date": "6月11日 白天",
+      "title": "A股验证完成（分化）",
+      "status": "mixed",
+      "statusText": "分化验证",
+      "dotColor": "yellow",
+      "current": false,
+      "detail": "验证结果：设备方向（北方华创+2.96%、中微+4.85%）强势承接，光模块方向（中际旭创-2.01%、新易盛-4.55%）走弱，资金出现明显切换。",
+      "tags": [
+        { "text": "设备强 ✅", "type": "up" },
+        { "text": "光模块弱 ❌", "type": "down" },
+        { "text": "分化验证", "type": "neutral" }
+      ],
+      "expand": {
+        "label": "验证结论",
+        "items": [
+          "半导体设备：独立逻辑成立，不依赖海外映射",
+          "光模块：海外映射链阻滞，资金短期撤离",
+          "科创50微涨：整体承接力度一般，非全面共振"
+        ]
+      },
+      "plainText": "今天验证了：设备股有自己的逻辑，光模块还在跟着海外跑但没有跑通。"
+    },
+    {
+      "id": "verify_us",
+      "date": "6月11日 晚",
+      "title": "美股再验证（进行中）",
+      "status": "reverify",
+      "statusText": "进行中",
+      "dotColor": "cyan",
+      "current": true,
+      "detail": "美股盘中继续走强：SOXX +2.49%、NVDA +1.24%、AMD +1.51%。若美股今晚收涨，则明日A股设备方向有望继续强势。",
+      "tags": [
+        { "text": "SOXX +2.49% 🔄", "type": "up" },
+        { "text": "NVDA +1.24% 🔄", "type": "up" },
+        { "text": "传导延续性？", "type": "neutral" }
+      ],
+      "expand": {
+        "label": "关键变量",
+        "items": [
+          "美股今晚能否收涨？若收涨，明日A股设备方向有望延续",
+          "SOXX能否守住涨幅？是半导体链情绪的核心指标",
+          "光模块能否重新跟随？是明日观察重点"
+        ]
+      },
+      "plainText": "今晚美股还在涨，如果今晚能收住，明天A股设备方向可能继续强。"
+    }
+  ],
+  "checklist": [
+    {
+      "icon": "fail",
+      "watch": "A股科技是否低开高走",
+      "good": "低开后能收回一半以上跌幅，或者科创50翻红",
+      "means": "说明内部资金愿意接，行情不是单纯靠美股",
+      "result": "科创50微涨+0.62%，但未低开高走，整体力度有限"
+    },
+    {
+      "icon": "fail",
+      "watch": "光模块是否继续强于大盘",
+      "good": "新易盛、中际旭创跑赢科创50指数",
+      "means": "说明主线逻辑没被动摇，资金还在加仓核心方向",
+      "result": "光模块今日走弱：中际旭创-2.01%、新易盛-4.55%，未能跑赢"
+    },
+    {
+      "icon": "pass",
+      "watch": "半导体设备是否继续领涨",
+      "good": "北方华创、中微公司维持强势，不跟着美股跌",
+      "means": "说明国产替代有自己的独立逻辑，不依赖海外",
+      "result": "北方华创+2.96%、中微公司+4.85%，设备方向强势领涨 ✅"
+    },
+    {
+      "icon": "pending",
+      "watch": "科技股成交是不是太拥挤",
+      "good": "TMT成交占比在 35-50% 区间",
+      "means": "太低说明资金不感兴趣，太高（超55%）说明大家挤在一起，容易踩踏",
+      "result": "今日TMT成交占比数据待下一版更新"
+    },
+    {
+      "icon": "fail",
+      "watch": "港股科技是否从分化转为补涨",
+      "good": "不只是腾讯一个人涨，网易、小米也能跟上",
+      "means": "说明行情是全面的，不是靠一两只股票撑场面",
+      "result": "港股分化：网易+1.75%，但腾讯-1.80%、小米-1.82%，未能全面补涨"
+    }
+  ],
+  "themes": [
+    {
+      "id": "equipment",
+      "name": "半导体设备与材料",
+      "color": "#f97316",
+      "heat": "主线",
+      "longTerm": "国产替代核心",
+      "todayStatus": "可关注",
+      "opportunityLevel": "可跟踪",
+      "opportunityReason": "今日验证强势（北方华创+2.96%、中微+4.85%），独立逻辑成立，风险可控",
+      "logic": "国产替代逻辑独立，今日验证强势，不依赖海外映射",
+      "overseas": [
+        "阿斯麦 ASML",
+        "应用材料 AMAT",
+        "泛林 LAM",
+        "东京电子 TEL"
+      ],
+      "china": [
+        "北方华创 +2.96% ✅",
+        "中微公司 +4.85% ✅",
+        "拓荆科技 待更新",
+        "华海清科 待更新"
+      ],
+      "verify": "北方华创/中微公司连续强势，独立逻辑成立 ✅"
+    },
+    {
+      "id": "optical",
+      "name": "光模块与 CPO（高速光通信）",
+      "color": "#06b6d4",
+      "heat": "扩散",
+      "longTerm": "海外映射方向",
+      "todayStatus": "等修复",
+      "opportunityLevel": "等企稳",
+      "opportunityReason": "中际旭创-2.01%、新易盛-4.55%走弱，映射链阻滞，等美股确认后修复",
+      "logic": "海外映射方向，今日承压走弱，等待美股确认后修复",
+      "overseas": [
+        "Lumentum",
+        "相干 Coherent",
+        "博通 AVGO +1.13%"
+      ],
+      "china": [
+        "中际旭创 -2.01% ❌",
+        "新易盛 -4.55% ❌",
+        "天孚通信 待更新",
+        "剑桥科技 待更新"
+      ],
+      "verify": "美股SOXX走强，但A股光模块今日走弱，映射链阻滞，等修复"
+    },
+    {
+      "id": "ai_chip",
+      "name": "AI 芯片与算力",
+      "color": "#3b82f6",
+      "heat": "扩散",
+      "longTerm": "国产替代",
+      "todayStatus": "等修复",
+      "opportunityLevel": "等企稳",
+      "opportunityReason": "寒武纪-0.93%微跌，美股AI芯片走强但A股映射方向待确认",
+      "logic": "美股AI芯片走强，A股寒武纪今日微跌，映射方向待确认",
+      "overseas": [
+        "英伟达 NVDA +1.24%",
+        "超微 AMD +1.51%",
+        "博通 AVGO +1.13%"
+      ],
+      "china": [
+        "寒武纪 -0.93%",
+        "海光信息 待更新",
+        "工业富联 待更新",
+        "浪潮信息 待更新"
+      ],
+      "verify": "美股AI芯片走强，A股映射方向待确认，等修复"
+    },
+    {
+      "id": "server_pcb",
+      "name": "AI 服务器与 PCB",
+      "color": "#f59e0b",
+      "heat": "扩散",
+      "longTerm": "算力基础设施",
+      "todayStatus": "等修复",
+      "opportunityLevel": "等企稳",
+      "opportunityReason": "数据不完整（多只标的待更新），无法确认强度，等数据补齐",
+      "logic": "跟随设备方向，今日表现待更新",
+      "overseas": [
+        "超微电脑 SMCI",
+        "戴尔 DELL",
+        "博通 AVGO +1.13%"
+      ],
+      "china": [
+        "工业富联 待更新",
+        "沪电股份 待更新",
+        "胜宏科技 待更新",
+        "深南电路 待更新"
+      ],
+      "verify": "服务器链是否跟随设备方向走强？"
+    },
+    {
+      "id": "storage",
+      "name": "存储周期",
+      "color": "#8b5cf6",
+      "heat": "观察",
+      "longTerm": "周期反转",
+      "todayStatus": "先观察",
+      "opportunityLevel": "暂回避",
+      "opportunityReason": "数据不完整且无验证信号，存储方向暂时没有明确催化剂",
+      "logic": "HBM和DRAM价格预期改善，但今日强度待验证",
+      "overseas": [
+        "美光 MU",
+        "Sandisk SNDK",
+        "三星",
+        "SK海力士"
+      ],
+      "china": [
+        "兆易创新 待更新",
+        "德明利 待更新",
+        "佰维存储 待更新",
+        "江波龙 待更新"
+      ],
+      "verify": "存储方向能否跟随设备方向走强？"
+    },
+    {
+      "id": "cloud_app",
+      "name": "云计算与 AI 应用",
+      "color": "#10b981",
+      "heat": "观察",
+      "longTerm": "AI落地场景",
+      "todayStatus": "先观察",
+      "opportunityLevel": "暂回避",
+      "opportunityReason": "腾讯-1.80%走弱，应用层分化持续，没有明确催化剂",
+      "logic": "应用层走势更分化，先观察是否从单点走向扩散",
+      "overseas": [
+        "微软 MSFT +0.35%",
+        "亚马逊 AMZN",
+        "谷歌 GOOGL",
+        "Meta META +0.68%"
+      ],
+      "china": [
+        "金山办公 待更新",
+        "科大讯飞 待更新",
+        "腾讯 -1.80%"
+      ],
+      "verify": "应用层分化是否持续？"
+    },
+    {
+      "id": "edge_ai",
+      "name": "端侧 AI 与机器人",
+      "color": "#ec4899",
+      "heat": "观察",
+      "longTerm": "终端重构",
+      "todayStatus": "先观察",
+      "opportunityLevel": "暂回避",
+      "opportunityReason": "端侧方向无验证信号，短线资金集中在设备和光模块",
+      "logic": "短线资金集中在设备和光模块，端侧方向先观察",
+      "overseas": [
+        "苹果 AAPL",
+        "特斯拉 TSLA",
+        "高通 QCOM"
+      ],
+      "china": [
+        "立讯精密 待更新",
+        "歌尔股份 待更新"
+      ],
+      "verify": "端侧方向何时从观察升级？"
+    }
+  ],
+  "healthRadar": {
+    "title": "这轮行情稳不稳",
+    "dimensions": [
+      {
+        "name": "涨得贵不贵",
+        "level": 60,
+        "signal": "yellow",
+        "label": "看核心股票涨幅是不是太快太急",
+        "originalName": "估值拥挤"
+      },
+      {
+        "name": "是不是太多人挤在科技股",
+        "level": 40,
+        "signal": "green",
+        "label": "看成交是不是过度集中在科技板块",
+        "originalName": "资金拥挤"
+      },
+      {
+        "name": "有没有政策和利率风险",
+        "level": 30,
+        "signal": "green",
+        "label": "看有没有突发政策或利率变化",
+        "originalName": "事件风险"
+      },
+      {
+        "name": "美股跌了，A股还能不能扛住",
+        "level": 55,
+        "signal": "yellow",
+        "label": "看A股能不能不跟着美股跌",
+        "originalName": "传导断裂"
+      },
+      {
+        "name": "是不是只剩少数股票在涨",
+        "level": 50,
+        "signal": "yellow",
+        "label": "看上涨的股票面是不是在缩窄",
+        "originalName": "主题退潮"
+      }
+    ]
+  }
+}
+</script>
+
+<script>
+
+const DATA_FILE = 'dashboard-data.json';
+
+// ===== 视角切换 =====
+function switchView(view) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  const mapping = {
+    verify: ['viewVerify', 'viewTheme'],
+    chain: ['viewChain', 'viewVerify'],
+    theme: ['viewTheme']
+  };
+  const show = mapping[view] || [];
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('visible'));
+  show.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('visible'); });
+}
+
+// ===== 主题卡片联动 =====
+function highlightTheme(themeId) {
+  const card = document.querySelector('.theme-card[data-id="' + themeId + '"]');
+  if (!card) return;
+  const wasHighlighted = card.classList.contains('theme-highlight');
+  document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('theme-highlight'));
+  if (!wasHighlighted) {
+    card.classList.add('theme-highlight');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ===== 规则解释折叠 =====
+function toggleReasoning() {
+  var panel = document.getElementById('reasoningPanel');
+  var icon = document.getElementById('reasoningIcon');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    icon.style.transform = 'rotate(90deg)';
+  } else {
+    panel.style.display = 'none';
+    icon.style.transform = 'rotate(0deg)';
+  }
+}
+
+// ===== 适配层 =====
+function adaptData(json) {
+  let result = {
+    verdict: json.verdict.sentence,
+    plainText: json.verdict.plainText || '',
+    temperature: json.verdict.temperature,
+    tempLabel: json.verdict.temperatureLabel,
+    tempSub: json.verdict.temperatureSub || '',
+    reasoning: json.verdict.reasoning || null,
+    drivers: (json.drivers || []).map((d, i) => ({
+      num: ['①','②','③'][i] || (i+1),
+      text: d.title + '：' + d.detail
+    })),
+    eventChain: (json.eventChain || []).map(ev => ({
+      ...ev,
+      plainText: ev.plainText || ''
+    })),
+    checklist: json.checklist || [],
+    themes: (json.themes || []).map(t => {
+      var statusMap = {'可关注':'follow','等修复':'repair','先观察':'observe','避免追':'avoid'};
+      var todayStatusText = t.todayStatus || '先观察';
+      var oppMap = {'可跟踪':'track','等企稳':'wait','暂回避':'avoid'};
+      var oppText = t.opportunityLevel || '';
+      return {
+        ...t,
+        overseas: (t.overseas || []).map(s => s),
+        todayStatus: statusMap[todayStatusText] || 'observe',
+        todayStatusText: todayStatusText,
+        opportunityLevel: oppText ? (oppMap[oppText] || '') : '',
+        opportunityLevelText: oppText,
+        opportunityReason: t.opportunityReason || ''
+      };
+    }),
+    health: (json.healthRadar && json.healthRadar.dimensions) ? json.healthRadar.dimensions.map(d => ({
+      name: d.name,
+      originalName: d.originalName || d.name,
+      level: d.signal || 'green',
+      score: typeof d.level === 'number' ? d.level : (d.signal === 'green' ? 30 : d.signal === 'yellow' ? 60 : 85),
+      status: d.signal === 'green' ? 'safe' : d.signal === 'yellow' ? 'watch' : 'warn',
+      statusText: d.signal === 'green' ? '偏健康' : d.signal === 'yellow' ? '需观察' : '有风险',
+      desc: d.label
+    })) : [],
+    _meta: json._meta || {},
+    healthCheck: json._meta?.healthCheck || null,
+    actionGuide: json.actionGuide || json.verdict?.actionGuide || null,
+    stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' }
+  };
+  window.D = result;
+  return result;
+}
+
+// ===== 渲染 =====
+function render(D) {
+  // 阶段感知：根据 stage 更新模块标题
+  var stageTitles = {
+    morning: {
+      section2Title: '今天A股科技能不能接住昨晚美股信号？对照下面几条看',
+      section3Title: '昨晚美股发生了什么 · 看看全球市场是怎么传导的 · 点击节点看详情',
+      section4Title: '哪些方向值得今天关注 · 分清长期主线和今天能不能碰'
+    },
+    midday: {
+      section2Title: '上午验证结果出来了没？对照下面看哪些信号已经确认',
+      section3Title: '今天上午全球市场怎么传导的 · 点击节点看详情',
+      section4Title: '上午哪些方向已经验证强势 · 分清主线和分化'
+    },
+    evening: {
+      section2Title: '全天信号最终确认 · 对照看今天的验证结果',
+      section3Title: '全天事件时间线 · 从昨晚美股到今天A股的完整传导 · 点击节点看详情',
+      section4Title: '今日复盘 · 哪些方向经受住了验证，哪些需要明天继续观察'
+    }
+  };
+  var st = stageTitles[D.stage.type] || stageTitles.evening;
+
+  // 更新 Section 2 标题
+  var s2title = document.querySelector('#viewVerify .card-title');
+  if (s2title) s2title.innerHTML = '<span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-yellow);">🔍</span>' + st.section2Title;
+  // 更新 Section 3 标题
+  var s3title = document.querySelector('#viewChain .card-title');
+  if (s3title) s3title.innerHTML = '<span class="icon" style="background:rgba(16,185,129,0.15);color:var(--accent-green);">⚡</span>' + st.section3Title;
+  // 更新 Section 4 标题
+  var s4title = document.querySelector('#viewTheme .card-title');
+  if (s4title) s4title.innerHTML = '<span class="icon" style="background:rgba(139,92,246,0.15);color:var(--accent-purple);">🧩</span>' + st.section4Title;
+
+  // 更新头部 stage badge
+  var stageEl = document.getElementById('stageBadge');
+  if (stageEl && D.stage) {
+    var stageIcons = { morning: '🌅', midday: '📊', evening: '✅' };
+    stageEl.style.display = 'inline-flex';
+    stageEl.innerHTML = '<span class="stage-icon">' + (stageIcons[D.stage.type] || '📊') + '</span>' + D.stage.label + '<span class="stage-note">' + D.stage.goal + '</span>';
+  }
+  // 更新时间
+  var timeEl = document.getElementById('updateTime');
+  timeEl.innerHTML = '';
+  timeEl.textContent = '';
+  timeEl.appendChild(document.createTextNode('数据更新：' + (D._meta.updated || new Date().toLocaleString('zh-CN',{hour12:false}))));
+
+  // 健康检查指示器
+  var badge = document.getElementById('healthBadge');
+  var badgeText = document.getElementById('healthBadgeText');
+  if (badge && badgeText) {
+    if (D.healthCheck && D.healthCheck.passed === true) {
+      badge.className = 'health-indicator passed';
+      badge.title = '数据源健康检查通过 · ' + (D.healthCheck.checkedAt || '') + ' · 错误0 警告' + (D.healthCheck.totalWarnings || 0);
+      badgeText.textContent = '数据可信';
+    } else if (D.healthCheck && D.healthCheck.passed === false) {
+      badge.className = 'health-indicator failed';
+      badge.title = '数据源健康检查未通过 · 错误' + (D.healthCheck.totalErrors || '?') + ' 警告' + (D.healthCheck.totalWarnings || '?') + ' · ' + (D.healthCheck.checkedAt || '');
+      badgeText.textContent = '数据异常(' + (D.healthCheck.totalErrors || '?') + ')';
+    } else {
+      badge.className = 'health-indicator none';
+      badge.title = '未执行健康检查';
+      badgeText.textContent = '未检查';
+    }
+    timeEl.appendChild(badge);
+  }
+
+  // 总判断
+  document.getElementById('verdictMain').innerHTML = D.verdict;
+
+  // 白话解释
+  var plainEl = document.getElementById('verdictPlain');
+  if (plainEl) plainEl.textContent = D.plainText;
+
+  // 今日策略
+  var agEl = document.getElementById('actionGuide');
+  if (agEl && D.actionGuide) {
+    var ag = D.actionGuide;
+    var cls = ag.stance === '偏进攻' ? 'stance-attack' : ag.stance === '先观察' ? 'stance-watch' : 'stance-defend';
+    agEl.className = 'action-guide ' + cls;
+    agEl.style.display = '';
+    agEl.innerHTML = '<div class="action-guide-stance"><span class="stance-label">今日策略：' + ag.stance + '</span></div>'
+      + '<div class="action-guide-summary">' + ag.summary + '</div>'
+      + '<div class="action-guide-watch">看盘规则：' + (ag.watch || []).map(function(w){ return '<span>' + w + '</span>'; }).join('') + '</div>'
+      + (ag.doNot ? '<div class="action-guide-donot">' + ag.doNot + '</div>' : '');
+  } else if (agEl) {
+    agEl.style.display = 'none';
+  }
+
+  // 温度计
+  var arc = document.getElementById('gaugeArc');
+  var totalLen = Math.PI * 90;
+  var ratio = D.temperature / 100;
+  arc.setAttribute('stroke-dasharray', totalLen * ratio + ' ' + totalLen);
+  document.getElementById('gaugeValue').textContent = D.temperature;
+  var angle = Math.PI * (1 - ratio);
+  document.getElementById('gaugeNeedle').setAttribute('cx', 110 + 90 * Math.cos(angle));
+  document.getElementById('gaugeNeedle').setAttribute('cy', 120 - 90 * Math.sin(angle));
+  document.getElementById('gaugeVerdict').textContent = D.tempLabel;
+  document.getElementById('gaugeSub').textContent = D.tempSub;
+
+  // 规则解释
+  var reasoningPanel = document.getElementById('reasoningSteps');
+  if (D.reasoning && D.reasoning.steps && reasoningPanel) {
+    reasoningPanel.innerHTML = D.reasoning.steps.map(function(step, idx) {
+      var isFinal = step.label === '最终推导';
+      if (isFinal) {
+        return '<div class="reasoning-final">' + step.detail + '</div>';
+      }
+      var badgeClass = step.passed ? 'pass' : 'fail';
+      var badgeText = step.passed ? '✓' : '✗';
+      return '<div class="reasoning-step">' +
+        '<div class="reasoning-step-badge ' + badgeClass + '">' + badgeText + '</div>' +
+        '<div class="reasoning-step-content">' +
+          '<div class="reasoning-step-label">' + step.label + '</div>' +
+          '<div class="reasoning-step-detail">' + step.detail + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    document.getElementById('reasoningToggle').style.display = 'flex';
+  } else {
+    var toggleEl = document.getElementById('reasoningToggle');
+    if (toggleEl) toggleEl.style.display = 'none';
+  }
+
+  // 驱动三卡片
+  document.getElementById('driversGrid').innerHTML = D.drivers.map(function(d) {
+    return '<div class="driver-card"><div class="driver-num">' + d.num + '</div><div class="driver-text">' + d.text + '</div></div>';
+  }).join('');
+
+  // 验证清单（看什么、怎么算好、说明什么）
+  document.getElementById('checklist').innerHTML = D.checklist.map(function(c) {
+    if (c.watch) {
+      // 新结构
+      return '<div class="check-item">' +
+        '<div class="check-icon ' + c.icon + '">' + (c.icon==='pass'?'\u2713':c.icon==='fail'?'\u2717':'?') + '</div>' +
+        '<div class="check-structured">' +
+          '<div><span class="check-label">看什么</span><div class="check-value"><strong>' + c.watch + '</strong></div></div>' +
+          '<div><span class="check-label">怎么算好</span><div class="check-value">' + c.good + '</div></div>' +
+          '<div><span class="check-label">说明什么</span><div class="check-value">' + c.means + '</div></div>' +
+        '</div>' +
+      '</div>';
+    } else {
+      // 旧结构兼容
+      return '<div class="check-item">' +
+        '<div class="check-icon ' + c.icon + '">' + (c.icon==='pass'?'\u2713':c.icon==='fail'?'\u2717':'?') + '</div>' +
+        '<div class="check-text">' + c.text + '</div>' +
+      '</div>';
+    }
+  }).join('');
+
+  // 事件链（加人话）
+  document.getElementById('eventChain').innerHTML = D.eventChain.map(function(ev) {
+    var plainHtml = ev.plainText ? '<div class="event-plain">' + ev.plainText + '</div>' : '';
+    return '<div class="event-node" onclick="this.classList.toggle(\'expanded\')">' +
+      '<div class="event-dot-col"><div class="event-dot ' + ev.dotColor + ' ' + (ev.current ? 'current' : '') + '"></div></div>' +
+      '<div class="event-content">' +
+        '<div class="event-header">' +
+          '<span class="event-date">' + ev.date + '</span>' +
+          '<span class="event-title">' + ev.title + '</span>' +
+          '<span class="event-status ' + ev.status + '">' + ev.statusText + '</span>' +
+        '</div>' +
+        '<div class="event-detail">' + ev.detail + '</div>' +
+        plainHtml +
+        '<div class="event-tags">' + (ev.tags||[]).map(function(t) { return '<span class="event-tag ' + t.type + '">' + t.text + '</span>'; }).join('') + '</div>' +
+        '<div class="event-expand">' +
+          '<div class="expand-label">' + ((ev.expand||{}).label||'详情') + '</div>' +
+          '<ul>' + ((ev.expand||{}).items||[]).map(function(i) { return '<li>' + i + '</li>'; }).join('') + '</ul>' +
+        '</div>' +
+        '<div class="event-hint">点击展开详情 \u25be</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // 主题矩阵（海外中文名）
+  document.getElementById('themeMatrix').innerHTML = D.themes.map(function(t) {
+    var heatClass = t.heat==='\u4e3b\u7ebf' ? 'theme-mainline' : t.heat==='\u6269\u6563' ? 'theme-spread' : 'theme-watching';
+    var heatBadge = t.heat==='\u4e3b\u7ebf' ? 'heat-main' : t.heat==='\u6269\u6563' ? 'heat-spread' : 'heat-watch';
+    return '<div class="theme-card ' + heatClass + '" data-id="' + t.id + '" onclick="highlightTheme(\'' + t.id + '\')">' +
+      '<div class="theme-header">' +
+        '<div class="theme-dot" style="background:' + t.color + '"></div>' +
+        '<div class="theme-name">' + t.name + '</div>' +
+      '</div>' +
+      '<div class="theme-dual-tags">' +
+        '<span class="theme-heat ' + heatBadge + '">' + t.heat + '</span>' +
+        '<span class="theme-today-status status-' + (t.todayStatus||'observe') + '">' + (t.todayStatusText || '先观察') + '</span>' +
+      '</div>' +
+      '<div class="theme-logic">\ud83d\udca1 ' + t.logic + '</div>' +
+      '<div class="theme-section">' +
+        '<div class="theme-section-label-plain">海外代表</div>' +
+        '<div class="theme-tags">' + (t.overseas||[]).map(function(s) { return '<span class="theme-tag overseas">' + s + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+      '<div class="theme-section">' +
+        '<div class="theme-section-label-plain">A股对应</div>' +
+        '<div class="theme-tags">' + (t.china||[]).map(function(s) { return '<span class="theme-tag china">' + s + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+      (t.verify ? '<div class="theme-verify">\ud83d\udd0d 验证点：' + t.verify + '</div>' : '') +
+    '</div>';
+  }).join('');
+
+  // 风险分数
+  var watchCount = D.health.filter(function(r) { return r.level === 'yellow'; }).length;
+  var warnCount = D.health.filter(function(r) { return r.level === 'red'; }).length;
+  var safeCount = D.health.filter(function(r) { return r.level === 'green'; }).length;
+  var avgScore = Math.round(D.health.reduce(function(sum, r) { return sum + (r.score || 0); }, 0) / Math.max(D.health.length, 1));
+  var summaryLabel = warnCount >= 2 ? '需要小心' : warnCount > 0 ? '需要观察' : watchCount >= 3 ? '还在验证' : '风险可控';
+  // 根据分数自动给总判断句
+  var actionSentence = '';
+  if (avgScore >= 70) {
+    actionSentence = '当前不是进攻期，是等修复期。先别急着追涨。';
+  } else if (avgScore >= 50) {
+    actionSentence = '当前处于观察期，可以小仓位试，但别重仓。';
+  } else {
+    actionSentence = '当前风险整体可控，可以正常跟踪主线方向。';
+  }
+  document.getElementById('healthSummary').innerHTML =
+    '<div class="health-score">' +
+      '<div class="health-score-num">' + avgScore + '<span style="font-size:0.5em;color:var(--text-muted)">/100</span></div>' +
+      '<div class="health-score-label">当前状态：' + summaryLabel + '</div>' +
+    '</div>' +
+    '<div class="health-summary-text">' +
+      '<strong>分数越高，说明这轮科技行情越不稳。</strong>' + actionSentence +
+      '当前是' + safeCount + '项风险可控、' + watchCount + '项需要观察、' + warnCount + '项需要小心。' +
+    '</div>';
+
+  document.getElementById('healthDetails').innerHTML = D.health.map(function(r) {
+    var score = r.score || (r.level === 'green' ? 30 : r.level === 'yellow' ? 60 : 85);
+    return '<div class="health-item">' +
+      '<div class="health-item-top">' +
+        '<div class="health-name">' + r.originalName + '风险 ' + score + '/100</div>' +
+        '<span class="health-status ' + r.status + '">' + r.statusText + '</span>' +
+      '</div>' +
+      '<div class="health-bar-row">' +
+        '<div class="health-bar"><div class="health-bar-fill ' + r.level + '" style="width:' + score + '%"></div></div>' +
+      '</div>' +
+      '<div class="health-desc">' + r.desc + '</div>' +
+    '</div>';
+  }).join('');
+
+
+  // v8: 渲染机会分级（主题卡渲染完成后，统一一次性执行）
+  setTimeout(function() {
+    var themes = window.D && window.D.themes || [];
+    themes.forEach(function(t) {
+      // 没有机会分级数据时不渲染，不默认显示"等企稳"
+      if (!t.opportunityLevel || !t.opportunityLevelText) return;
+      var card = document.querySelector('.theme-card[data-id="' + t.id + '"]');
+      if (!card) return;
+      // 找到 .theme-logic 元素（💡那段），插在它前面
+      var logicDiv = card.querySelector('.theme-logic');
+      if (!logicDiv) return;
+      // 防止重复插入
+      if (card.querySelector('.theme-opportunity')) return;
+      // 插入机会分级标签
+      var opp = document.createElement('div');
+      opp.className = 'theme-opportunity status-' + t.opportunityLevel;
+      opp.innerHTML = '📊 机会分级：<strong>' + t.opportunityLevelText + '</strong>';
+      card.insertBefore(opp, logicDiv);
+      // 插入原因
+      if (t.opportunityReason) {
+        var reason = document.createElement('div');
+        reason.className = 'theme-opportunity-reason';
+        reason.textContent = t.opportunityReason;
+        card.insertBefore(reason, logicDiv);
+      }
+    });
+    var rendered = themes.filter(function(t){ return t.opportunityLevelText; }).length;
+    console.log('[v8] opportunityLevel rendered for', rendered, 'themes');
+  }, 100);
+
+}
+
+// ===== 启动 =====
+function init() {
+  var el = document.getElementById('embedded-data');
+  var EMBEDDED = null;
+  if (el) { try { EMBEDDED = JSON.parse(el.textContent); } catch(e) { console.error('[看板] 内嵌数据解析失败:', e); } }
+
+  // 如果内嵌数据有效，直接渲染（线上部署场景）
+  if (EMBEDDED && EMBEDDED._meta && EMBEDDED._meta.updated) {
+    tryRender(EMBEDDED, 'embedded');
+    return;
+  }
+
+  // 否则尝试 fetch（本地开发场景，有 dashboard-data.json 旁边）
+  fetch(DATA_FILE + '?t=' + Date.now()).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function(json) {
+    if (json && json._meta && json._meta.updated) {
+      tryRender(json, 'fetch');
+      return;
+    }
+    throw new Error('JSON invalid');
+  }).catch(function() {
+    if (EMBEDDED) {
+      tryRender(EMBEDDED, 'embedded-fallback');
+    } else {
+      document.getElementById('verdictMain').innerHTML = '<span style="color:#ef4444">数据加载失败</span>';
+    }
+  });
+}
+
+function tryRender(json, source) {
+  try {
+    var D = adaptData(json);
+    render(D);
+    console.log('[看板] v6 数据来源:', source, '| 更新:', json._meta.updated);
+  } catch(e) { console.error('[看板] 渲染失败:', e); }
+}
+
+init();
+
+</script>
+
+</body>
+</html>
+
+
