@@ -1468,17 +1468,34 @@ function render(D) {
   var plainEl = document.getElementById('verdictPlain');
   if (plainEl) plainEl.textContent = D.plainText;
 
-  // 今日策略
+  // 今日策略（改进：更突出行动指令）
   var agEl = document.getElementById('actionGuide');
   if (agEl && D.actionGuide) {
     var ag = D.actionGuide;
     var cls = ag.stance === '偏进攻' ? 'stance-attack' : ag.stance === '先观察' ? 'stance-watch' : 'stance-defend';
     agEl.className = 'action-guide ' + cls;
     agEl.style.display = '';
-    agEl.innerHTML = '<div class="action-guide-stance"><span class="stance-label">今日策略：' + ag.stance + '</span></div>'
-      + '<div class="action-guide-summary">' + ag.summary + '</div>'
-      + '<div class="action-guide-watch">看盘规则：' + (ag.watch || []).map(function(w){ return '<span>' + w + '</span>'; }).join('') + '</div>'
-      + (ag.doNot ? '<div class="action-guide-donot">' + ag.doNot + '</div>' : '');
+    
+    // 改进渲染：更突出行动指令
+    var watchHtml = (ag.watch || []).map(function(w, idx) {
+      // 尝试解析"可跟踪/等企稳/暂回避"
+      var cls = w.indexOf('可') > -1 ? 'watch-ok' : w.indexOf('等') > -1 ? 'watch-wait' : w.indexOf('暂') > -1 ? 'watch-avoid' : 'watch-normal';
+      return '<span class="' + cls + '">' + w + '</span>';
+    }).join('');
+    
+    agEl.innerHTML = ''
+      + '<div class="action-guide-header">'
+      + '  <div class="action-guide-stance"><span class="stance-icon">' + (ag.stance === '偏进攻' ? '📈' : ag.stance === '先观察' ? '👀' : '🛡️') + '</span>今日策略：' + ag.stance + '</div>'
+      + '  <div class="action-guide-verdict">' + (D.verdict || '当前结论：' + ag.stance) + '</div>'
+      + '</div>'
+      + '<div class="action-guide-body">'
+      + '  <div class="action-guide-summary">' + ag.summary + '</div>'
+      + '  <div class="action-guide-rules">'
+      + '    <div class="rules-label">📌 今天看什么</div>'
+      + '    <div class="rules-list">' + watchHtml + '</div>'
+      + '  </div>'
+      + (ag.doNot ? '  <div class="action-guide-donot"><span class="donot-icon">⚠️</span><span class="donot-text">今天别做：' + ag.doNot + '</span></div>' : '')
+      + '</div>';
   } else if (agEl) {
     agEl.style.display = 'none';
   }
