@@ -561,8 +561,8 @@
 
 <!-- ===== 头部 ===== -->
 <div class="header">
-  <h1>🌍 全球科技早盘机会雷达</h1>
-  <div class="subtitle">看懂美股科技对A股的影响，判断今天是跟涨、修复，还是先避险</div>
+  <h1 id="pageTitle">🌍 全球科技传导验证雷达</h1>
+  <div class="subtitle" id="pageSubtitle">看懂昨夜美股、今日A股、今晚美股如何互相影响，判断科技行情是继续扩散、局部分化，还是需要避险</div>
   <div class="update-time" id="updateTime">数据更新：加载中...<span class="health-indicator none" id="healthBadge" title="数据源健康检查结果"><span class="health-indicator-dot"></span><span id="healthBadgeText">未检查</span></span></div>
   <div class="stage-badge" id="stageBadge" style="display:none;"></div>
   <div class="view-tabs">
@@ -1178,20 +1178,54 @@ function toggleReasoning() {
 
 // ===== 适配层 =====
 function adaptData(json) {
+  // 计算绝对日期（根据 _meta.updated）
+  var updatedStr = (json._meta && json._meta.updated) || '';
+  var baseDate = null;
+  // 尝试从 "2026-06-11 18:05" 或 "2026年06月11日 18:05" 中提取日期
+  var dateMatch = updatedStr.match(/(\d{4})[年\-](\d{2})[月\-](\d{2})/);
+  if (dateMatch) {
+    baseDate = new Date(parseInt(dateMatch[1]), parseInt(dateMatch[2])-1, parseInt(dateMatch[3]));
+  }
+  function getAbsoluteDate(offsetDays, fmt) {
+    if (!baseDate) return '';
+    var d = new Date(baseDate);
+    d.setDate(d.getDate() + offsetDays);
+    var y = d.getFullYear();
+    var m = ('0' + (d.getMonth()+1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    if (fmt === 'short') return m + '/' + day;
+    return y + '年' + m + '月' + day + '日';
+  }
+  // 替换文本中的相对日期（返回新文本，相对日期后加绝对日期括号）
+  function annotateDate(text) {
+    if (!text || !baseDate) return text;
+    // 替换规则：今晚 → 今晚（6/11）、明天 → 明天（6/12）、今日 → 今日（6/11）
+    return text
+      .replace(/今晚/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '晚）'; })
+      .replace(/明天/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; })
+      .replace(/明日/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; })
+      .replace(/今日/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '）'; })
+      .replace(/当天/g, function(match) { return match + '（' + getAbsoluteDate(0, 'short') + '）'; })
+      .replace(/次日/g, function(match) { return match + '（' + getAbsoluteDate(1, 'short') + '）'; });
+  }
+
   let result = {
-    verdict: json.verdict.sentence,
-    plainText: json.verdict.plainText || '',
+    verdict: annotateDate(json.verdict.sentence || ''),
+    plainText: annotateDate(json.verdict.plainText || ''),
     temperature: json.verdict.temperature,
     tempLabel: json.verdict.temperatureLabel,
-    tempSub: json.verdict.temperatureSub || '',
+    tempSub: annotateDate(json.verdict.temperatureSub || ''),
     reasoning: json.verdict.reasoning || null,
     drivers: (json.drivers || []).map((d, i) => ({
       num: ['①','②','③'][i] || (i+1),
-      text: d.title + '：' + d.detail
+      // 对 title 和 detail 分别应用日期标注
+      text: annotateDate(d.title || '') + '：' + annotateDate(d.detail || '')
     })),
     eventChain: (json.eventChain || []).map(ev => ({
       ...ev,
-      plainText: ev.plainText || ''
+      plainText: ev.plainText || '',
+      // 交易阶段中文显示（数据中有 tradingStage 字段时自动转换）
+      tradingStageText: ev.tradingStage ? ({'pre-market':'盘前报价','regular':'盘中（美东'+ (ev.tradingTime||'XX:XX') + '）','after-hours':'盘后','closed':'收盘','nav':'NAV变化'}[ev.tradingStage] || ev.tradingStage) : (ev.tradingStageText || '')
     })),
     checklist: json.checklist || [],
     themes: (json.themes || []).map(t => {
@@ -1219,17 +1253,119 @@ function adaptData(json) {
       desc: d.label
     })) : [],
     _meta: json._meta || {},
-    healthCheck: json._meta?.healthCheck || null,
+    healthCheck: (function() {
+      var hc = json._meta?.healthCheck || null;
+      if (!hc) return null;
+      // 适配新旧两种格式
+      // 新格式：{ dataSource: {...}, dataCompleteness: {...}, overall可信度: '...' }
+      // 旧格式：{ passed: true/false, totalErrors: N, totalWarnings: N, ... }
+      if (hc.dataSource || hc.dataCompleteness) {
+        // 新格式
+        var ds = hc.dataSource || { passed: false, totalErrors: '?', totalWarnings: '?', checkedAt: '', details: '' };
+        var dc = hc.dataCompleteness || { score: 0, missingItems: [], checkedAt: '', details: '' };
+        var overall = hc.overall可信度 || (ds.passed ? (dc.score >= 0.8 ? '高' : (dc.score >= 0.5 ? '中' : '低')) : '低');
+        return {
+          dataSourcePassed: ds.passed,
+          dataSourceErrors: ds.totalErrors || 0,
+          dataSourceWarnings: ds.totalWarnings || 0,
+          dataSourceCheckedAt: ds.checkedAt || '',
+          dataSourceDetails: ds.details || '',
+          dataCompletenessScore: dc.score || 0,
+          dataCompletenessMissing: dc.missingItems || [],
+          dataCompletenessCheckedAt: dc.checkedAt || '',
+          dataCompletenessDetails: dc.details || '',
+          overall: overall
+        };
+      } else {
+        // 旧格式，转换成新格式
+        return {
+          dataSourcePassed: hc.passed,
+          dataSourceErrors: hc.totalErrors || 0,
+          dataSourceWarnings: hc.totalWarnings || 0,
+          dataSourceCheckedAt: hc.checkedAt || '',
+          dataSourceDetails: hc.details || '',
+          dataCompletenessScore: 0,  // 旧格式没有完整度信息
+          dataCompletenessMissing: [],
+          dataCompletenessCheckedAt: '',
+          dataCompletenessDetails: '（旧格式数据，无完整度信息）',
+          overall: hc.passed ? '中' : '低'
+        };
+      }
+    })(),
     actionGuide: json.actionGuide || json.verdict?.actionGuide || null,
     stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' }
   };
+    // 为文案字段标注绝对日期（P0-4）
+  result.plainText = annotateDate(result.plainText || '');
+  result.tempSub = annotateDate(result.tempSub || '');
+  // eventChain
+  (result.eventChain || []).forEach(function(ev) {
+    ev.detail = annotateDate(ev.detail || '');
+    ev.plainText = annotateDate(ev.plainText || '');
+    (ev.expand||{}).items = (ev.expand||{}).items || [];
+    ev.expand.items = ev.expand.items.map(function(item) { return annotateDate(item); });
+  });
+  // checklist
+  (result.checklist || []).forEach(function(c) {
+    c.result = annotateDate(c.result || '');
+    c.good = annotateDate(c.good || '');
+    c.means = annotateDate(c.means || '');
+  });
+  // actionGuide
+  if (result.actionGuide) {
+    result.actionGuide.summary = annotateDate(result.actionGuide.summary || '');
+    result.actionGuide.doNot = annotateDate(result.actionGuide.doNot || '');
+    (result.actionGuide.watch || []).forEach(function(w, idx) {
+      result.actionGuide.watch[idx] = annotateDate(w || '');
+    });
+  }
+
   window.D = result;
   return result;
 }
 
 // ===== 渲染 =====
 function render(D) {
-  // 阶段感知：根据 stage 更新模块标题
+  // 阶段感知：根据 stage 更新页面标题、副标题、模块标题
+  var stageConfig = {
+    morning: {
+      pageTitleSuffix: '· 早盘机会版',
+      pageSubtitle: '看懂昨夜美股，判断今天A股怎么验证——跟涨、修复，还是先避险',
+      stageIcon: '🌅',
+      stageLabel: '早盘机会版',
+      stageNote: '看今天A股怎么验证昨晚美股信号'
+    },
+    midday: {
+      pageTitleSuffix: '· 盘中验证版',
+      pageSubtitle: '对照上午信号，看哪些方向已经确认强势，哪些还需要下午验证',
+      stageIcon: '📊',
+      stageLabel: '盘中验证版',
+      stageNote: '上午信号已出，下午继续验证'
+    },
+    evening: {
+      pageTitleSuffix: '· 盘后复盘版',
+      pageSubtitle: '汇总全天数据，预判今晚美股和明日A股方向——今天验证了什么，明天看什么',
+      stageIcon: '✅',
+      stageLabel: '盘后复盘版',
+      stageNote: '全天数据已汇总，预判明日方向'
+    }
+  };
+  var sc = stageConfig[D.stage.type] || stageConfig.evening;
+
+  // 动态更新页面标题和副标题
+  var titleEl = document.getElementById('pageTitle');
+  var subtitleEl = document.getElementById('pageSubtitle');
+  if (titleEl) titleEl.innerHTML = '🌍 全球科技传导验证雷达<span style="font-size:0.65em;color:var(--accent-cyan);margin-left:8px;">' + sc.pageTitleSuffix + '</span>';
+  if (subtitleEl) subtitleEl.textContent = sc.pageSubtitle;
+
+  // 更新阶段badge（更完整的信息）
+  var stageEl = document.getElementById('stageBadge');
+  if (stageEl && D.stage) {
+    stageEl.style.display = 'inline-flex';
+    stageEl.innerHTML = '<span class="stage-icon">' + sc.stageIcon + '</span>' + sc.stageLabel + '<span class="stage-note">' + sc.stageNote + '</span>';
+    stageEl.title = '当前数据阶段：' + sc.stageLabel + '\n' + sc.stageNote;
+  }
+
   var stageTitles = {
     morning: {
       section2Title: '今天A股科技能不能接住昨晚美股信号？对照下面几条看',
@@ -1272,18 +1408,51 @@ function render(D) {
   timeEl.textContent = '';
   timeEl.appendChild(document.createTextNode('数据更新：' + (D._meta.updated || new Date().toLocaleString('zh-CN',{hour12:false}))));
 
-  // 健康检查指示器
+  // 健康检查指示器（多层显示）
   var badge = document.getElementById('healthBadge');
   var badgeText = document.getElementById('healthBadgeText');
   if (badge && badgeText) {
-    if (D.healthCheck && D.healthCheck.passed === true) {
-      badge.className = 'health-indicator passed';
-      badge.title = '数据源健康检查通过 · ' + (D.healthCheck.checkedAt || '') + ' · 错误0 警告' + (D.healthCheck.totalWarnings || 0);
-      badgeText.textContent = '数据可信';
-    } else if (D.healthCheck && D.healthCheck.passed === false) {
-      badge.className = 'health-indicator failed';
-      badge.title = '数据源健康检查未通过 · 错误' + (D.healthCheck.totalErrors || '?') + ' 警告' + (D.healthCheck.totalWarnings || '?') + ' · ' + (D.healthCheck.checkedAt || '');
-      badgeText.textContent = '数据异常(' + (D.healthCheck.totalErrors || '?') + ')';
+    var hc = D.healthCheck;
+    if (hc) {
+      // 根据 overall 可信度设置badge颜色和文字
+      var overallMap = {'高': { cls: 'passed', text: '数据可信', color: 'green' }, '中': { cls: 'passed', text: '数据参考', color: 'yellow' }, '低': { cls: 'failed', text: '数据异常', color: 'red' }};
+      var ob = overallMap[hc.overall] || overallMap['低'];
+      badge.className = 'health-indicator ' + ob.cls;
+      badgeText.textContent = ob.text;
+
+      // 构建详细tooltip（多层信息）
+      var tip = '健康检查（多层）\n\n';
+      tip += '【数据源连接】\n';
+      tip += '  状态：' + (hc.dataSourcePassed ? '正常' : '异常') + '\n';
+      tip += '  错误：' + hc.dataSourceErrors + '  警告：' + hc.dataSourceWarnings + '\n';
+      tip += '  检查时间：' + hc.dataSourceCheckedAt + '\n';
+      tip += '  详情：' + hc.dataSourceDetails + '\n\n';
+      tip += '【关键指标完整度】\n';
+      tip += '  完整度：' + Math.round(hc.dataCompletenessScore * 100) + '%\n';
+      if (hc.dataCompletenessMissing && hc.dataCompletenessMissing.length > 0) {
+        tip += '  缺失项：' + hc.dataCompletenessMissing.join('、') + '\n';
+      }
+      tip += '  检查时间：' + hc.dataCompletenessCheckedAt + '\n';
+      tip += '  详情：' + hc.dataCompletenessDetails + '\n\n';
+      tip += '【综合可信度】' + hc.overall;
+      badge.title = tip;
+
+      // 如果完整度低，在页面上显示一个警告
+      if (hc.dataCompletenessScore < 0.5 && hc.dataCompletenessMissing.length > 0) {
+        // 在首屏行动指令区域显示完整度警告
+        var agEl = document.getElementById('actionGuide');
+        if (agEl) {
+          var warningDiv = document.createElement('div');
+          warningDiv.style.cssText = 'margin:10px 0 0;padding:10px 14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:0.82rem;color:var(--accent-red);line-height:1.6;';
+          warningDiv.innerHTML = '⚠️ 关键指标不完整：' + hc.dataCompletenessMissing.join('、') + ' 等数据缺失，当前结论可信度为"' + hc.overall + '"，不宜给强行动建议。';
+          // 插入到 actionGuide 的开头
+          if (agEl.firstChild) {
+            agEl.insertBefore(warningDiv, agEl.firstChild);
+          } else {
+            agEl.appendChild(warningDiv);
+          }
+        }
+      }
     } else {
       badge.className = 'health-indicator none';
       badge.title = '未执行健康检查';
@@ -1377,9 +1546,14 @@ function render(D) {
     }
   }).join('');
 
-  // 事件链（加人话）
+  // 事件链（加人话 + 交易阶段标注）
   document.getElementById('eventChain').innerHTML = D.eventChain.map(function(ev) {
     var plainHtml = ev.plainText ? '<div class="event-plain">' + ev.plainText + '</div>' : '';
+    // 交易阶段标注（美股数据必须标明）
+    var stageHtml = '';
+    if (ev.tradingStageText) {
+      stageHtml = '<div style="margin:8px 0 4px;font-size:0.72rem;color:var(--accent-cyan);background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-cyan);padding:4px 10px;border-radius:0 6px 6px 0;">⏱ 数据口径：' + ev.tradingStageText + '</div>';
+    }
     return '<div class="event-node" onclick="this.classList.toggle(\'expanded\')">' +
       '<div class="event-dot-col"><div class="event-dot ' + ev.dotColor + ' ' + (ev.current ? 'current' : '') + '"></div></div>' +
       '<div class="event-content">' +
@@ -1389,6 +1563,7 @@ function render(D) {
           '<span class="event-status ' + ev.status + '">' + ev.statusText + '</span>' +
         '</div>' +
         '<div class="event-detail">' + ev.detail + '</div>' +
+        stageHtml +
         plainHtml +
         '<div class="event-tags">' + (ev.tags||[]).map(function(t) { return '<span class="event-tag ' + t.type + '">' + t.text + '</span>'; }).join('') + '</div>' +
         '<div class="event-expand">' +
