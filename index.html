@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>美股带动A股验证看板</title>
+<title>全球科技传导验证雷达</title>
 <style>
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -116,6 +116,7 @@
   .status-pass { color: var(--accent-green); }
   .status-fail { color: var(--accent-red); }
   .status-pending { color: var(--accent-yellow); }
+  .status-weak-pass { color: var(--accent-yellow); }
 
   /* ===== Section 1：今日总判断 ===== */
   .verdict-banner {
@@ -783,7 +784,7 @@
     <div class="theme-matrix-wrap active" id="themeMatrixWrap">
       <div class="theme-matrix" id="themeMatrix"></div>
       <div class="matrix-note">
-        <strong>注意：</strong>"可关注"不等于"买入"；"避免追"不等于"看空"。<br>
+        <strong>注意：</strong>"重点观察"不等于"买入"；"避免追"不等于"看空"。<br>
         矩阵帮小白决定"先看哪儿"，列表帮他理解"为什么"。
       </div>
     </div>
@@ -903,16 +904,19 @@
   },
   "drivers": [
     {
-      "title": "半导体设备继续强势，国产替代有独立逻辑",
-      "detail": "中微公司 +4.85%、北方华创 +2.96%，连续两日强势，说明资金在认国产替代，不依赖美股走势"
+      "signal": "半导体设备仍是最强方向",
+      "detail": "北方华创 +4.66% 三连阳，中微公司 +0.26% 冲高回落，说明国产替代逻辑仍在，但内部开始分化。",
+      "implication": "设备股若能守住今日涨幅，可继续观察；若明日冲高回落，需警惕高位分化。"
     },
     {
-      "title": "光模块明显走弱，海外映射链短线失效",
-      "detail": "新易盛 -4.55%、中际旭创 -2.01%，尽管美股SOXX连续两日偏强，A股光模块未跟随，映射链短线失效"
+      "signal": "光模块映射链没有完全修复",
+      "detail": "中际旭创 +2.22% 反弹，但新易盛 -3.71% 继续走弱，说明不能简单说光模块回来了。",
+      "implication": "需继续观察美股SOXX今晚收盘能否确认强势，以及明日A股光模块能否集体止跌。"
     },
     {
-      "title": "美股科技连续偏强但力度递减",
-      "detail": "SOXX 昨收+2.49%→今晚盘前+1.75%，力度在递减，正式开盘后仍需确认"
+      "signal": "美股科技仍偏强，但力度递减",
+      "detail": "SOXX 连续走强，但涨幅从 +2.49% 到 +1.75% 再到盘中 +0.43%，今晚收盘仍需确认。",
+      "implication": "若SOXX今晚收涨但力度继续减弱，明日A股科技可能继续分化，不宜盲目追高。"
     }
   ],
   "eventChain": [
@@ -1082,44 +1086,49 @@
   ],
   "checklist": [
     {
-      "icon": "pass",
+      "icon": "weak-pass",
+      "statusLabel": "弱通过",
       "watch": "A股科技指数是否全线翻红",
       "good": "三大指数（创业板指、科创50、深证成指）全部收红",
       "means": "说明整体科技情绪回暖，不是靠个别股撑场面",
-      "result": "创业板指+0.50%、深证成指+0.75%、科创50+0.05%，全线翻红 ✅（但科创50几乎平盘）",
-      "reversalCondition": "三大指数转跌且跌幅超0.5%"
+      "result": "创业板指+0.50%、深证成指+0.75%、科创50+0.05%，全线翻红但科创50几乎平盘",
+      "reverslCondition": "三大指数转跌且跌幅超0.5%"
     },
     {
       "icon": "fail",
+      "statusLabel": "未通过",
       "watch": "光模块映射链是否修复",
       "good": "新易盛止跌企稳，中际旭创继续反弹",
       "means": "说明海外映射逻辑重新成立，资金回流核心方向",
-      "result": "中际旭创+2.22%反弹修复✅，但新易盛-3.71%连续两天明显走弱（-4.55%→-3.71%），映射链未完全修复",
-      "reversalCondition": "新易盛止跌翻红，或中际旭创连续三日反弹"
+      "result": "中际旭创+2.22%反弹，但新易盛-3.71%继续走弱，映射链未完全接上",
+      "reverslCondition": "新易盛止跌翻红，或中际旭创连续三日反弹"
     },
     {
-      "icon": "pass",
+      "icon": "weak-pass",
+      "statusLabel": "弱通过",
       "watch": "半导体设备是否延续强势",
       "good": "北方华创、中微公司维持强势",
       "means": "说明国产替代独立逻辑持续验证",
-      "result": "北方华创+4.66%三连阳强势延续✅，但中微公司冲高回落仅+0.26%⚠️，设备方向龙头集中",
-      "reversalCondition": "北方华创放量长上影或转跌"
+      "result": "北方华创+4.66%三连阳强势延续，但中微公司冲高回落仅+0.26%，设备方向龙头集中",
+      "reverslCondition": "北方华创放量长上影或转跌"
     },
     {
       "icon": "pass",
+      "statusLabel": "通过",
       "watch": "港股科技是否全面补涨",
       "good": "腾讯、小米、网易全部上涨",
       "means": "说明行情是全面的，不是靠一两只股票撑场面",
-      "result": "腾讯+1.40%、小米+1.39%、网易+0.91%全线翻红✅，从昨天的分化转为全面共振，积极信号",
-      "reversalCondition": "港股科技整体转跌超1%"
+      "result": "腾讯+1.40%、小米+1.39%、网易+0.91%全线翻红，从昨天的分化转为全面共振",
+      "reverslCondition": "港股科技整体转跌超1%"
     },
     {
       "icon": "pending",
+      "statusLabel": "待确认",
       "watch": "美股力度是否持续递减",
       "good": "SOXX收盘守住正收益",
       "means": "力度递减趋势是否在加速，如果是，传导支撑会减弱",
       "result": "SOXX盘中+0.43%（前日+2.49%→昨日+1.75%→今天+0.43%），递减趋势明显，待今晚收盘确认",
-      "reversalCondition": "SOXX收盘翻绿，或跌幅超1%"
+      "reverslCondition": "SOXX收盘翻绿，或跌幅超1%"
     }
   ],
   "themes": [
@@ -1618,14 +1627,14 @@ function render(D) {
       pageSubtitle: '对照上午信号，看哪些方向已确认强势，哪些下午继续验证',
       stageIcon: '📊',
       stageLabel: '盘中验证版',
-      stageNote: '上午信号已出，下午继续验证'
+      stageNote: '上午验证完成，下午继续观察'
     },
     evening: {
       pageTitleSuffix: '· 盘后复盘版',
       pageSubtitle: '全天数据已汇总，预判今晚美股和明日A股方向',
       stageIcon: '✅',
       stageLabel: '盘后复盘版',
-      stageNote: '全天数据已汇总，预判明日方向'
+      stageNote: '全天收完，预判明天A股科技能不能继续'
     }
   };
   var sc = stageConfig[D.stage.type] || stageConfig.evening;
@@ -1761,18 +1770,24 @@ function render(D) {
       return '<span class="' + cls + '">' + w + '</span>';
     }).join('');
     
+    // 根据 stage 动态显示策略文案
+    var stageType = (D.stage && D.stage.type) || 'evening';
+    var strategyLabel = stageType === 'morning' ? '今日策略' : stageType === 'midday' ? '下午看什么' : '明日观察';
+    var watchLabel = stageType === 'morning' ? '今天看什么' : stageType === 'midday' ? '下午看什么' : '明天看什么';
+    var donotLabel = stageType === 'morning' ? '今天别做' : stageType === 'midday' ? '下午别做' : '明天别急做';
+    
     agEl.innerHTML = ''
       + '<div class="action-guide-header">'
-      + '  <div class="action-guide-stance"><span class="stance-icon">' + (ag.stance === '偏进攻' ? '📈' : ag.stance === '先观察' ? '👀' : '🛡️') + '</span>今日策略：' + ag.stance + '</div>'
+      + '  <div class="action-guide-stance"><span class="stance-icon">' + (ag.stance === '偏进攻' ? '📈' : ag.stance === '先观察' ? '👀' : '🛡️') + '</span>' + strategyLabel + '：' + ag.stance + '</div>'
       + '  <div class="action-guide-verdict">' + (D.verdict || '当前结论：' + ag.stance) + '</div>'
       + '</div>'
       + '<div class="action-guide-body">'
       + '  <div class="action-guide-summary">' + ag.summary + '</div>'
       + '  <div class="action-guide-rules">'
-      + '    <div class="rules-label">📌 今天看什么</div>'
+      + '    <div class="rules-label">📌 ' + watchLabel + '</div>'
       + '    <div class="rules-list">' + watchHtml + '</div>'
       + '  </div>'
-      + (ag.doNot ? '  <div class="action-guide-donot"><span class="donot-icon">⚠️</span><span class="donot-text">今天别做：' + ag.doNot + '</span></div>' : '')
+      + (ag.doNot ? '  <div class="action-guide-donot"><span class="donot-icon">⚠️</span><span class="donot-text">' + donotLabel + '：' + ag.doNot + '</span></div>' : '')
       + '</div>';
   } else if (agEl) {
     agEl.style.display = 'none';
@@ -1829,11 +1844,12 @@ function render(D) {
       '<div class="check-col-h">什么情况要小心</div>' +
     '</div>' +
     D.checklist.map(function(c) {
-      var iconMap = { pass: '✅', fail: '❌', pending: '⏳' };
-      var statusClass = c.icon === 'pass' ? 'status-pass' : c.icon === 'fail' ? 'status-fail' : 'status-pending';
+      var iconMap = { pass: '✅', fail: '❌', pending: '⏳', 'weak-pass': '⚠️' };
+      var statusClass = c.icon === 'pass' ? 'status-pass' : c.icon === 'fail' ? 'status-fail' : c.icon === 'weak-pass' ? 'status-weak-pass' : 'status-pending';
+      var statusLabel = c.statusLabel || (c.icon === 'pass' ? '通过' : c.icon === 'fail' ? '未通过' : c.icon === 'weak-pass' ? '弱通过' : '待确认');
       return '<div class="check-row">' +
         '<div class="check-col check-col-watch"><div class="check-watch-text">' + c.watch + '</div></div>' +
-        '<div class="check-col check-col-result"><div class="check-status ' + statusClass + '">' + iconMap[c.icon] + ' ' + (c.result || '待确认') + '</div></div>' +
+        '<div class="check-col check-col-result"><div class="check-status ' + statusClass + '">' + iconMap[c.icon] + '<span class="status-label">' + statusLabel + '</span> ' + (c.result || '待确认') + '</div></div>' +
         '<div class="check-col check-col-good"><div class="check-good-text">' + c.good + '</div></div>' +
         '<div class="check-col check-col-reversal"><div class="check-reversal-text">🔄 ' + (c.reversalCondition || '待补充') + '</div></div>' +
       '</div>';
@@ -1874,7 +1890,7 @@ function render(D) {
     var rows = ['global_ai', 'domestic_substitution', 'diffusion', 'watch'];
     var cols = ['focus', 'wait_repair', 'observe', 'avoid_chase'];
     var rowLabels = {'global_ai': '🌐 全球AI主线', 'domestic_substitution': '🇨🇳 国产替代主线', 'diffusion': '🔄 科技扩散方向', 'watch': '👀 观察/低确认'};
-    var colLabels = {'focus': '✅ 可关注', 'wait_repair': '⏳ 等修复', 'observe': '👁️ 先观察', 'avoid_chase': '⚠️ 避免追'};
+    var colLabels = {'focus': '👀 重点观察', 'wait_repair': '⏳ 等修复', 'observe': '👁️ 先观察', 'avoid_chase': '⚠️ 避免追'};
     var grid = {};
     rows.forEach(function(r) { grid[r] = {}; cols.forEach(function(c) { grid[r][c] = []; }); });
     D.themes.forEach(function(t) {
