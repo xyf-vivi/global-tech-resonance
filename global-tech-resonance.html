@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>美股带动A股验证看板</title>
+<title>全球科技传导验证雷达</title>
 <style>
 
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -88,6 +88,35 @@
     letter-spacing: 2px; margin-bottom: 8px; opacity: 0.7;
   }
   .layer-badge::before { content: ''; width: 20px; height: 1px; background: var(--accent-cyan); }
+
+
+
+
+  /* ===== P1-2: 清单4列（正确版本） ===== */
+  .checklist-4col { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr; gap: 0; }
+  .checklist-header { display: contents; }
+  .check-col-h {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent-cyan);
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .check-row { display: contents; }
+  .check-col {
+    padding: 10px 12px; border-bottom: 1px solid rgba(30,41,59,0.5);
+    font-size: 0.82rem; display: flex; align-items: center;
+  }
+  .check-col-watch { color: var(--text-primary); font-weight: 500; }
+  .check-col-result { justify-content: center; }
+  .check-col-good { color: var(--text-secondary); font-size: 0.78rem; }
+  .check-col-reversal { color: var(--accent-orange); font-size: 0.75rem; }
+  .check-watch-text { font-weight: 500; }
+  .check-good-text { font-size: 0.78rem; }
+  .check-reversal-text { font-size: 0.75rem; }
+  .check-status { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; }
+  .status-pass { color: var(--accent-green); }
+  .status-fail { color: var(--accent-red); }
+  .status-pending { color: var(--accent-yellow); }
+  .status-weak-pass { color: var(--accent-yellow); }
 
   /* ===== Section 1：今日总判断 ===== */
   .verdict-banner {
@@ -555,38 +584,123 @@
   }
   .action-guide-donot::before { content: '🚫 不做什么：'; font-weight: 700; }
 
-</style>
-</head>
+
+  /* ===== P1-3: 2D主题矩阵 ===== */
+  .theme-view-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .theme-view-tab {
+    padding: 6px 16px; border: 1px solid var(--border); border-radius: 6px;
+    background: transparent; color: var(--text-secondary); font-size: 0.82rem;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .theme-view-tab.active { background: rgba(6,182,212,0.1); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .theme-matrix-wrap { display: none; }
+  .theme-matrix-wrap.active { display: block; }
+  .theme-list-wrap { display: none; }
+  .theme-list-wrap.active { display: block; }
+  .matrix-table {
+    width: 100%; border-collapse: collapse; font-size: 0.82rem;
+  }
+  .matrix-table th, .matrix-table td {
+    border: 1px solid var(--border); padding: 10px; text-align: center; vertical-align: top;
+    min-width: 120px;
+  }
+  .matrix-table th {
+    background: rgba(6,182,212,0.08); color: var(--accent-cyan); font-weight: 600;
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .matrix-table th.row-header {
+    min-width: 100px; max-width: 120px; font-size: 0.72rem; line-height: 1.4;
+  }
+  .matrix-table td { background: var(--bg-card); }
+  .matrix-cell-empty { color: var(--text-muted); font-size: 0.75rem; }
+  .matrix-theme-card {
+    background: rgba(0,0,0,0.2); border-radius: 6px; padding: 8px; margin: 2px 0;
+    cursor: pointer; transition: all 0.3s; border: 1px solid transparent;
+  }
+  .matrix-theme-card:hover { border-color: var(--accent-cyan); background: rgba(6,182,212,0.05); }
+  .matrix-theme-card .mt-name { font-weight: 600; font-size: 0.82rem; color: var(--text-primary); }
+  .matrix-theme-card .mt-change { font-size: 0.75rem; margin: 2px 0; }
+  .matrix-theme-card .mt-change.up { color: var(--accent-red); }
+  .matrix-theme-card .mt-change.down { color: var(--accent-green); }
+  .matrix-theme-card .mt-status { font-size: 0.68rem; color: var(--text-muted); }
+  .matrix-theme-card .mt-signal { font-size: 0.7rem; color: var(--accent-orange); margin-top: 2px; }
+  .matrix-note { font-size: 0.72rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6; }
+  .matrix-note strong { color: var(--accent-yellow); }
+
+
+  /* ===== P1-4: 术语解释 ===== */
+  .glossary-section { margin-top: 20px; padding: 16px; background: rgba(255,255,255,0.02); border-radius: var(--radius); border: 1px solid var(--border); }
+  .glossary-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.82rem; color: var(--text-secondary); }
+  .glossary-toggle:hover { color: var(--accent-cyan); }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-top: 12px; }
+  .glossary-item { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; }
+  .glossary-term { font-weight: 600; color: var(--accent-cyan); font-size: 0.82rem; }
+  .glossary-full { font-size: 0.72rem; color: var(--text-muted); margin: 2px 0; }
+  .glossary-meaning { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+
+
+  /* ===== 主Tab区（总判断下方） ===== */
+  .main-tabs-card {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-top: -8px;
+  }
+  .main-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .main-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .main-tab .main-tab-icon { font-size: 1.2rem; margin-bottom: 4px; }
+  .main-tab .main-tab-desc { font-size: 0.68rem; font-weight: 400; color: var(--text-muted); margin-top: 2px; }
+  .main-tab:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+  .main-tab.active {
+    background: rgba(6,182,212,0.1);
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 16px rgba(6,182,212,0.15);
+  }
+  .main-tab.active .main-tab-desc { color: rgba(6,182,212,0.7); }
+  .section-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(30,41,59,0.5);
+  }
+
+</style>head>
 <body>
 
 <!-- ===== 头部 ===== -->
 <div class="header">
-  <h1>🌍 全球科技早盘机会雷达</h1>
-  <div class="subtitle">看懂美股科技对A股的影响，判断今天是跟涨、修复，还是先避险</div>
+  <h1 id="pageTitle">🌍 全球科技传导验证雷达</h1>
+  <div class="subtitle" id="pageSubtitle">看懂昨夜美股、今日A股、今晚美股如何互相影响，判断科技行情是继续扩散、局部分化，还是需要避险</div>
   <div class="update-time" id="updateTime">数据更新：加载中...<span class="health-indicator none" id="healthBadge" title="数据源健康检查结果"><span class="health-indicator-dot"></span><span id="healthBadgeText">未检查</span></span></div>
   <div class="stage-badge" id="stageBadge" style="display:none;"></div>
-  <div class="view-tabs">
-    <button class="view-tab" data-view="chain" onclick="switchView('chain')">
-      <span class="tab-icon">🔗</span>发生了什么
-      <span class="tab-desc">美股和A股发生了什么</span>
-    </button>
-    <button class="view-tab active" data-view="verify" onclick="switchView('verify')">
-      <span class="tab-icon">🔍</span>今天看什么
-      <span class="tab-desc">A股科技还能不能稳</span>
-    </button>
-    <button class="view-tab" data-view="theme" onclick="switchView('theme')">
-      <span class="tab-icon">🧩</span>哪些方向
-      <span class="tab-desc">光模块、设备、算力谁最强</span>
-    </button>
-  </div>
+
 </div>
 
 <div class="container">
 
   <!-- ===== Section 1：今日总判断 (始终可见) ===== -->
   <div class="verdict-banner always-visible">
-    <div class="layer-badge">第一层 · 今天怎么回事</div>
-    <div class="verdict-main" id="verdictMain"></div>
+        <div class="verdict-main" id="verdictMain"></div>
     <div class="verdict-plain" id="verdictPlain"></div>
     <div class="action-guide" id="actionGuide" style="display:none;"></div>
     <div class="verdict-row">
@@ -625,13 +739,27 @@
     </div>
   </div>
 
+  <!-- ===== 主Tab区（放在总判断下面）===== -->
+  <div class="card main-tabs-card always-visible">
+    <div class="main-tabs">
+      <button class="main-tab active" data-view="verify" onclick="switchView('verify')">
+        <span class="main-tab-icon">🔍</span>今天看什么
+        <span class="main-tab-desc">看明天A股科技能不能修复</span>
+      </button>
+      <button class="main-tab" data-view="theme" onclick="switchView('theme')">
+        <span class="main-tab-icon">🧩</span>哪些方向
+        <span class="main-tab-desc">哪些能跟踪，哪些先别追</span>
+      </button>
+      <button class="main-tab" data-view="chain" onclick="switchView('chain')">
+        <span class="main-tab-icon">🔗</span>发生了什么
+        <span class="main-tab-desc">美股点火后，A股怎么接</span>
+      </button>
+    </div>
+  </div>
+
   <!-- ===== Section 2：今天看什么 (verify + chain 视角可见) ===== -->
   <div class="card view-section visible" id="viewVerify">
-    <div class="layer-badge">第二层 · 今天盯什么</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-yellow);">🔍</span>
-      今天A股科技还能不能稳？对照下面几条看盘面
-    </div>
+    <div class="section-subtitle">明天盯这几个信号</div>
     <div class="checklist" id="checklist"></div>
     <div class="color-legend">
       <span><span class="legend-dot green"></span>偏健康</span>
@@ -642,28 +770,32 @@
 
   <!-- ===== Section 3：为什么涨 (chain 视角可见) ===== -->
   <div class="card view-section" id="viewChain">
-    <div class="layer-badge">第三层 · 为什么涨</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(16,185,129,0.15);color:var(--accent-green);">⚡</span>
-      事件时间线 · 看看全球市场是怎么一步步传导的 · 点击节点看详情
-    </div>
+    <div class="section-subtitle">美股点火后，全球科技链怎么传导 · 点击看详情</div>
     <div class="event-chain" id="eventChain"></div>
   </div>
 
   <!-- ===== Section 4：哪些方向 (theme + verify 视角可见) ===== -->
   <div class="card view-section" id="viewTheme">
-    <div class="layer-badge">第四层 · 哪些方向</div>
-    <div class="card-title">
-      <span class="icon" style="background:rgba(139,92,246,0.15);color:var(--accent-purple);">🧩</span>
-      哪些方向还能看 · 分清长期主线和今天能不能碰
+    <div class="section-subtitle">分清长期主线和明天能不能碰</div>
+        <div class="theme-view-tabs">
+      <button class="theme-view-tab active" onclick="switchThemeView('matrix')">🧩 矩阵视图</button>
+      <button class="theme-view-tab" onclick="switchThemeView('list')">📋 列表视图</button>
     </div>
-    <div class="theme-matrix" id="themeMatrix"></div>
+    <div class="theme-matrix-wrap active" id="themeMatrixWrap">
+      <div class="theme-matrix" id="themeMatrix"></div>
+      <div class="matrix-note">
+        <strong>注意：</strong>"重点观察"不等于"买入"；"避免追"不等于"看空"。<br>
+        矩阵帮小白决定"先看哪儿"，列表帮他理解"为什么"。
+      </div>
+    </div>
+    <div class="theme-list-wrap" id="themeListWrap">
+      <div class="theme-list" id="themeList"></div>
+    </div>
   </div>
 
   <!-- ===== Section 5：风险分数 (始终可见) ===== -->
   <div class="card always-visible">
-    <div class="layer-badge">第五层 · 风险分数</div>
-    <div class="card-title">
+        <div class="card-title">
       <span class="icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan);">🩺</span>
       风险分数
     </div>
@@ -678,6 +810,14 @@
     </div>
   </div>
 
+
+  <!-- ===== 术语解释 ===== -->
+  <div class="glossary-section" id="glossarySection">
+    <div class="glossary-toggle" onclick="var g=document.getElementById('glossaryGrid');g.style.display=g.style.display==='none'?'grid':'none';">
+      <span>📢</span> 术语解释（小白必看 · 点击展开/收起）
+    </div>
+    <div class="glossary-grid" id="glossaryGrid" style="display:none;"></div>
+  </div>
 </div>
 
 <!-- ===== 底部 ===== -->
@@ -690,237 +830,272 @@
 <script type="application/json" id="embedded-data">
 {
   "_meta": {
-    "version": "7.0-scripted",
-    "updated": "2026-06-11 18:05",
-    "updatedBy": "auto-evening",
-    "nextUpdate": "明天 08:30",
-    "note": "盘后全面更新：A股收盘+美股盘中数据",
+    "version": "7.5-us-verified",
+    "updated": "2026-06-13 08:37:00",
+    "updatedBy": "auto-morning",
+    "nextUpdate": "今天 11:35",
+    "note": "早盘前更新：美股6月12日收盘数据确认，预判今日A股方向",
     "healthCheck": {
       "passed": true,
       "totalErrors": 0,
       "totalWarnings": 0,
-      "checkedAt": "2026-06-11 18:05",
-      "details": "A股指数3/3查询成功，龙头6/6查询成功，港股3/3查询成功，美股7/7查询成功"
+      "checkedAt": "2026-06-13 08:37",
+      "details": "美股7/7查询成功，SOXX+1.59%力度持平，AMD+4.73%大幅领涨"
     }
   },
   "stage": {
-    "type": "evening",
-    "label": "晚间复盘",
-    "goal": "汇总全天数据，预判今晚美股和明日A股方向"
+    "type": "pre-market",
+    "label": "早盘前预判",
+    "goal": "根据昨晚美股收盘，预判今日A股科技方向"
   },
   "verdict": {
-    "sentence": "美股走强A股分化：设备承接强，光模块走弱",
-    "temperature": 58,
-    "temperatureLabel": "分化观察",
-    "temperatureSub": "美股走强但A股分化，设备强于光模块，先观察",
-    "plainText": "简单说：美股昨晚和今晚都涨了，但A股今天分化，设备股强、光模块弱，先看晚上美股能不能持续。",
+    "sentence": "美股AMD爆拉4.73%领涨，SOXX力度持平，今日A股科技看设备+AI芯片",
+    "temperature": 65,
+    "temperatureLabel": "偏强震荡",
+    "temperatureSub": "SOXX+1.59%力度持平✅ + AMD爆拉4.73%🔥，但NVDA横盘+META/AVGO转跌，分化行情",
+    "plainText": "简单说：昨晚美股没有继续走弱，SOXX涨1.59%力度和昨天差不多，更关键的是AMD爆拉4.73%领涨，说明AI芯片叙事可能切换到AMD主导。今日A股科技：设备股（北方华创三连阳）继续观察，AI芯片方向（寒武纪/海光）可能跟随AMD补涨，但光模块（新易盛续跌）仍需确认。",
     "actionGuide": {
       "stance": "先观察",
-      "summary": "传导分化，设备方向有独立逻辑但光模块走弱，先看今晚美股能否延续再做判断",
-      "watch": ["半导体设备能否延续强势", "光模块是否止跌企稳", "美股SOXX今晚收盘是否守住涨幅"],
-      "doNot": "不要因为某个科技股单独翻红就追，今天分化说明不是全面共振"
+      "summary": "美股SOXX力度持平+AMD爆拉，A股今日看设备延续和AI芯片补涨，但光模块仍需确认",
+      "watch": [
+        "半导体设备能否四连阳（北方华创今日开盘走势）",
+        "AI芯片能否跟随AMD补涨（寒武纪/海光信息开盘）",
+        "光模块能否止跌（新易盛开盘是否继续走弱）"
+      ],
+      "doNot": "不要因为AMD爆拉就追A股AI芯片，AMD大涨可能有个股催化，等开盘确认A股是否跟涨再说"
     },
     "reasoning": {
-      "ruleId": "transmission_mixed",
-      "ruleName": "传导分化",
-      "score": 58,
+      "ruleId": "strong_mixed",
+      "ruleName": "偏强分化",
+      "score": 65,
       "steps": [
         {
-          "label": "美股点火是否成立",
+          "label": "美股SOXX力度趋势",
           "passed": true,
-          "detail": "成立：SOXX +2.49%（≥1.5%阈值），NVDA +1.24%"
+          "detail": "SOXX +1.59%，力度持平（昨+1.75%），递减趋势暂停 ✅"
         },
         {
-          "label": "A股承接是否成立",
-          "passed": false,
-          "detail": "部分成立：科创50 +0.62%（<2%阈值），创业板指 -1.13%，但设备股（北方华创+2.96%、中微+4.85%）强势"
-        },
-        {
-          "label": "美股今晚延续性",
+          "label": "AMD爆拉催化",
           "passed": true,
-          "detail": "成立：SOXX盘中+2.49%，NVDA +1.24%，美股继续走强"
+          "detail": "AMD +4.73%大幅领涨，可能是个股催化（新品/财报/分析师上调），AI芯片叙事增强 ✅"
         },
         {
-          "label": "辅助信号",
+          "label": "NVDA横盘信号",
           "passed": false,
-          "detail": "光模块走弱（中际旭创-2.01%、新易盛-4.55%），港股分化"
+          "detail": "NVDA +0.16%几乎平盘，英伟达进入横盘，不是强势信号 ⚠️"
+        },
+        {
+          "label": "A股昨日承接",
+          "passed": true,
+          "detail": "A股昨日全线翻红，设备三连阳，承接力仍在 ✅"
+        },
+        {
+          "label": "分化风险",
+          "passed": false,
+          "detail": "META/AVGO转跌，美股内部开始分化，不是全面走强 ⚠️"
         },
         {
           "label": "最终推导",
           "passed": true,
-          "detail": "美股点火✅ + A股分化⚠️ + 美股延续✅ → 传导分化 58/100"
+          "detail": "SOXX力度持平✅ + AMD爆拉✅ + A股承接✅ + NVDA横盘⚠️ + 美股分化⚠️ → 偏强震荡 65/100"
         }
       ]
     }
   },
   "drivers": [
     {
-      "title": "美股科技继续走强",
-      "detail": "6月10日晚 SOXX +2.49%、NVDA +1.24%；6月11日晚盘中 SOXX 再涨 +2.49%，美股科技情绪持续强势"
+      "signal": "AMD爆拉4.73%，AI芯片叙事可能切换",
+      "detail": "AMD单日大涨4.73%，可能是有个股催化（新品发布/财报预期/分析师上调），带动AI芯片板块整体走强。A股AI芯片方向（寒武纪/海光信息）今日可能跟随补涨。",
+      "implication": "开盘观察寒武纪/海光信息是否高开，若有补涨信号可关注，但需确认不是AMD个股催化。"
     },
     {
-      "title": "A股半导体设备独立强势",
-      "detail": "北方华创 +2.96%、中微公司 +4.85%，国产替代逻辑不依赖海外，资金主动加仓设备方向"
+      "signal": "SOXX力度持平，递减趋势暂停",
+      "detail": "SOXX昨日+1.75%，今日+1.59%，力度基本持平，说明海外半导体情绪没有继续走弱，对A股科技是支撑。",
+      "implication": "若今日SOXX盘前继续走强（今晚数据），明日A股科技有望继续修复；若今晚SOXX转跌，需警惕。"
     },
     {
-      "title": "光模块承压，映射方向走弱",
-      "detail": "中际旭创 -2.01%、新易盛 -4.55%，海外算力链映射方向今日未能跟随美股走强，资金出现切换"
+      "signal": "设备股三连阳，独立逻辑持续验证",
+      "detail": "北方华创昨日+4.66%三连阳，国产替代逻辑不依赖海外映射，是本轮最确定的方向。今日能否四连阳是核心观察点。",
+      "implication": "设备股若今日继续走强，可确认国产替代主线地位；若冲高回落，需警惕高位分化。"
     }
   ],
   "eventChain": [
     {
       "id": "ignite",
-      "date": "6月10日 晚",
-      "title": "美股科技点火",
+      "date": "6月11日 晚",
+      "title": "美股科技第三日走强",
       "status": "fire",
       "statusText": "已点火",
       "dotColor": "green",
-      "detail": "SOXX +2.49%、英伟达 NVDA +1.24%、台积电 TSM +2.45%，美股科技全面走强。",
+      "detail": "SOXX +1.75%（前日+2.49%）、AMD +1.09%、TSM +1.47%、NVDA +0.81%，美股科技连续三日走强，但力度从+2.49%递减到+1.75%。",
       "tags": [
-        { "text": "SOXX +2.49%", "type": "up" },
-        { "text": "英伟达 NVDA +1.24%", "type": "up" },
-        { "text": "台积电 TSM +2.45%", "type": "up" }
+        {
+          "text": "SOXX +1.75%",
+          "type": "up"
+        },
+        {
+          "text": "连续三日",
+          "type": "up"
+        },
+        {
+          "text": "力度递减",
+          "type": "neutral"
+        }
       ],
       "expand": {
         "label": "带动主题",
         "items": [
-          "半导体设备：美股走强提振A股设备板块情绪",
-          "AI芯片：海外算力需求叙事持续",
-          "光模块：海外映射方向，但今日A股未能跟随"
+          "半导体设备：美股走强延续，继续提振国产替代情绪",
+          "AI芯片：AMD +1.09%，海外算力需求叙事持续",
+          "光模块：映射方向，今日中际旭创反弹但新易盛续跌"
         ]
       },
-      "plainText": "海外昨晚涨了，给A股科技提供了情绪引子。"
+      "plainText": "昨晚美股继续涨，但力度比前天小了，连续第三天走强。"
     },
     {
       "id": "follow",
-      "date": "6月11日 白天",
-      "title": "A股分化承接",
+      "date": "6月12日 白天",
+      "title": "A股温和修复收盘",
       "status": "mixed",
-      "statusText": "分化",
+      "statusText": "温和修复",
       "dotColor": "yellow",
-      "detail": "A股今日分化：科创50 +0.62%，创业板指 -1.13%；半导体设备（北方华创+2.96%、中微+4.85%）强势，但光模块（中际旭创-2.01%、新易盛-4.55%）走弱。",
+      "detail": "A股全天温和修复：创业板指+0.50%、深证成指+0.75%、科创50+0.05%全线翻红；北方华创+4.66%三连阳领涨，中际旭创+2.22%反弹，但新易盛-3.71%继续明显走弱。",
       "tags": [
-        { "text": "科创50 +0.62%", "type": "up" },
-        { "text": "北方华创 +2.96%", "type": "up" },
-        { "text": "新易盛 -4.55%", "type": "down" }
+        {
+          "text": "北方华创 +4.66%",
+          "type": "up"
+        },
+        {
+          "text": "新易盛 -3.71%",
+          "type": "down"
+        },
+        {
+          "text": "指数全线红",
+          "type": "up"
+        }
       ],
       "expand": {
-        "label": "A股分化方向",
+        "label": "A股修复方向",
         "items": [
-          "半导体设备强势：国产替代逻辑独立，不依赖海外",
-          "光模块走弱：海外映射方向资金撤退，未能跟随美股",
-          "科创50微涨：整体承接力度有限"
+          "半导体设备：北方华创+4.66%三连阳，国产替代主线持续验证",
+          "光模块分化：中际旭创+2.22%反弹vs新易盛-3.71%续跌，映射链修复不完整",
+          "AI芯片反弹：寒武纪+1.68%、中科曙光+0.96%，比昨天走强"
         ]
       },
-      "plainText": "美股涨了，A股分化跟：设备股接住了，光模块没接住。"
+      "plainText": "A股收盘比昨天好：指数全涨了，设备股继续猛涨，但新易盛还在跌。"
     },
     {
       "id": "pullback",
-      "date": "6月10日 晚",
-      "title": "美股实际未回调，继续走强",
+      "date": "6月12日 午后",
+      "title": "港股科技全面补涨",
       "status": "fire",
-      "statusText": "未回调",
+      "statusText": "全面补涨",
       "dotColor": "green",
-      "detail": "6月10日晚美股实际走强（SOXX +2.49%），而非回调；6月9日晚的回调已被扭转，海外情绪重新转向乐观。",
+      "detail": "港股科技午后全面走强：腾讯+1.40%（昨日-1.80%）、小米+1.39%（昨日-1.82%）、网易+0.91%（昨日+1.75%连续两日涨），从昨天的分化转为全面共振。",
       "tags": [
-        { "text": "SOXX +2.49%", "type": "up" },
-        { "text": "NVDA +1.24%", "type": "up" },
-        { "text": "美股未回调", "type": "up" }
+        {
+          "text": "腾讯 +1.40%",
+          "type": "up"
+        },
+        {
+          "text": "小米 +1.39%",
+          "type": "up"
+        },
+        {
+          "text": "三只全涨 ✅",
+          "type": "up"
+        }
       ],
       "expand": {
-        "label": "海外情绪",
+        "label": "港股修复信号",
         "items": [
-          "美股科技重新走强，A股设备方向受益",
-          "光模块未能跟随，说明映射链存在阻滞",
-          "今晚美股延续性是关键验证"
+          "腾讯从-1.80%到+1.40%，资金回流明显",
+          "小米从-1.82%到+1.39%，端侧AI方向修复",
+          "港股全面共振是本轮首次，积极信号"
         ]
       },
-      "plainText": "昨晚美股实际是涨的，不是跌的，海外情绪重新转向乐观。"
-    },
-    {
-      "id": "verify_a",
-      "date": "6月11日 白天",
-      "title": "A股验证完成（分化）",
-      "status": "mixed",
-      "statusText": "分化验证",
-      "dotColor": "yellow",
-      "current": false,
-      "detail": "验证结果：设备方向（北方华创+2.96%、中微+4.85%）强势承接，光模块方向（中际旭创-2.01%、新易盛-4.55%）走弱，资金出现明显切换。",
-      "tags": [
-        { "text": "设备强 ✅", "type": "up" },
-        { "text": "光模块弱 ❌", "type": "down" },
-        { "text": "分化验证", "type": "neutral" }
-      ],
-      "expand": {
-        "label": "验证结论",
-        "items": [
-          "半导体设备：独立逻辑成立，不依赖海外映射",
-          "光模块：海外映射链阻滞，资金短期撤离",
-          "科创50微涨：整体承接力度一般，非全面共振"
-        ]
-      },
-      "plainText": "今天验证了：设备股有自己的逻辑，光模块还在跟着海外跑但没有跑通。"
+      "plainText": "港股今天三只全涨了，昨天只有网易涨，今天腾讯和小米也跟上来了。"
     },
     {
       "id": "verify_us",
-      "date": "6月11日 晚",
-      "title": "美股再验证（进行中）",
-      "status": "reverify",
-      "statusText": "进行中",
-      "dotColor": "cyan",
-      "current": true,
-      "detail": "美股盘中继续走强：SOXX +2.49%、NVDA +1.24%、AMD +1.51%。若美股今晚收涨，则明日A股设备方向有望继续强势。",
+      "date": "6月12日 晚",
+      "title": "美股收盘验证：AMD领涨，SOXX力度持平",
+      "status": "fire",
+      "statusText": "已验证",
+      "dotColor": "green",
+      "detail": "美股6月12日收盘：SOXX +1.59%（力度持平，昨+1.75%）、AMD +4.73%大幅领涨（昨+1.09%）、NVDA +0.16%几乎平盘、META -0.26%转跌、AVGO -0.91%转跌。分化行情：AMD主导AI芯片叙事，但应用层和高性能计算方向走弱。",
       "tags": [
-        { "text": "SOXX +2.49% 🔄", "type": "up" },
-        { "text": "NVDA +1.24% 🔄", "type": "up" },
-        { "text": "传导延续性？", "type": "neutral" }
+        {
+          "text": "AMD +4.73% 🔥",
+          "type": "up"
+        },
+        {
+          "text": "SOXX +1.59% ✅",
+          "type": "up"
+        },
+        {
+          "text": "NVDA +0.16% ⚠️",
+          "type": "neutral"
+        }
       ],
       "expand": {
-        "label": "关键变量",
+        "label": "关键结论",
         "items": [
-          "美股今晚能否收涨？若收涨，明日A股设备方向有望延续",
-          "SOXX能否守住涨幅？是半导体链情绪的核心指标",
-          "光模块能否重新跟随？是明日观察重点"
+          "SOXX +1.59%力度持平（昨+1.75%），递减趋势暂停 ✅",
+          "AMD +4.73%大幅领涨，AI芯片叙事可能切换到AMD主导 🔥",
+          "NVDA +0.16%几乎平盘，英伟达进入横盘整理 ⚠️",
+          "META/AVGO转跌，应用层方向分化 ❌"
         ]
       },
-      "plainText": "今晚美股还在涨，如果今晚能收住，明天A股设备方向可能继续强。"
+      "plainText": "昨晚美股收盘：AMD大涨4.73%领涨，SOXX涨1.59%力度没有继续减弱，但英伟达只涨了0.16%，Meta和博通还跌了。",
+      "current": true
     }
   ],
   "checklist": [
     {
-      "icon": "fail",
-      "watch": "A股科技是否低开高走",
-      "good": "低开后能收回一半以上跌幅，或者科创50翻红",
-      "means": "说明内部资金愿意接，行情不是单纯靠美股",
-      "result": "科创50微涨+0.62%，但未低开高走，整体力度有限"
+      "icon": "weak-pass",
+      "statusLabel": "弱通过",
+      "watch": "A股科技指数是否全线翻红",
+      "good": "三大指数（创业板指、科创50、深证成指）全部收红",
+      "means": "说明整体科技情绪回暖，不是靠个别股撑场面",
+      "result": "昨日创业板指+0.50%、深证成指+0.75%、科创50+0.05%，全线翻红但科创50几乎平盘",
+      "reversalCondition": "三大指数转跌，或科创50明显弱于创业板，说明科技情绪重新走弱"
     },
     {
       "icon": "fail",
-      "watch": "光模块是否继续强于大盘",
-      "good": "新易盛、中际旭创跑赢科创50指数",
-      "means": "说明主线逻辑没被动摇，资金还在加仓核心方向",
-      "result": "光模块今日走弱：中际旭创-2.01%、新易盛-4.55%，未能跑赢"
+      "statusLabel": "未通过",
+      "watch": "光模块映射链是否修复",
+      "good": "新易盛止跌企稳，中际旭创继续反弹",
+      "means": "说明海外映射逻辑重新成立，资金回流核心方向",
+      "result": "昨日中际旭创+2.22%反弹，但新易盛-3.71%继续走弱，映射链未完全接上",
+      "reversalCondition": "新易盛继续下跌，或中际旭创反弹后再次转弱，说明映射链仍未修复"
     },
     {
       "icon": "pass",
-      "watch": "半导体设备是否继续领涨",
-      "good": "北方华创、中微公司维持强势，不跟着美股跌",
-      "means": "说明国产替代有自己的独立逻辑，不依赖海外",
-      "result": "北方华创+2.96%、中微公司+4.85%，设备方向强势领涨 ✅"
+      "statusLabel": "通过",
+      "watch": "半导体设备是否延续强势",
+      "good": "北方华创、中微公司维持强势，或继续收红",
+      "means": "说明国产替代独立逻辑持续验证",
+      "result": "北方华创+4.66%三连阳强势延续✅，今日看能否四连阳",
+      "reversalCondition": "北方华创放量长上影或转跌，说明设备方向开始分化"
+    },
+    {
+      "icon": "pass",
+      "statusLabel": "通过",
+      "watch": "美股SOXX力度是否继续递减",
+      "good": "SOXX收盘涨幅不低于昨日",
+      "means": "力度递减趋势若暂停，对A股科技是支撑",
+      "result": "SOXX +1.59%，力度持平（昨+1.75%），递减趋势暂停 ✅",
+      "reversalCondition": "SOXX今晚收盘转跌或涨幅低于0.5%，说明海外半导体情绪重新走弱"
     },
     {
       "icon": "pending",
-      "watch": "科技股成交是不是太拥挤",
-      "good": "TMT成交占比在 35-50% 区间",
-      "means": "太低说明资金不感兴趣，太高（超55%）说明大家挤在一起，容易踩踏",
-      "result": "今日TMT成交占比数据待下一版更新"
-    },
-    {
-      "icon": "fail",
-      "watch": "港股科技是否从分化转为补涨",
-      "good": "不只是腾讯一个人涨，网易、小米也能跟上",
-      "means": "说明行情是全面的，不是靠一两只股票撑场面",
-      "result": "港股分化：网易+1.75%，但腾讯-1.80%、小米-1.82%，未能全面补涨"
+      "statusLabel": "待确认",
+      "watch": "AMD爆拉后A股AI芯片是否补涨",
+      "good": "寒武纪/海光信息高开或收红",
+      "means": "AMD +4.73%若带动A股AI芯片补涨，映射链修复",
+      "result": "AMD爆拉4.73%待验证，今日开盘观察A股AI芯片是否跟随",
+      "reversalCondition": "寒武纪/海光平开或低开，说明AMD大涨是个股催化，A股不跟"
     }
   ],
   "themes": [
@@ -932,8 +1107,8 @@
       "longTerm": "国产替代核心",
       "todayStatus": "可关注",
       "opportunityLevel": "可跟踪",
-      "opportunityReason": "今日验证强势（北方华创+2.96%、中微+4.85%），独立逻辑成立，风险可控",
-      "logic": "国产替代逻辑独立，今日验证强势，不依赖海外映射",
+      "opportunityReason": "北方华创+4.66%三连阳，国产替代独立逻辑持续验证，不依赖海外映射，但中微公司冲高回落需注意节奏",
+      "logic": "国产替代独立逻辑三连阳验证，北方华创+4.66%最强，但中微公司冲高回落+0.26%",
       "overseas": [
         "阿斯麦 ASML",
         "应用材料 AMAT",
@@ -941,12 +1116,43 @@
         "东京电子 TEL"
       ],
       "china": [
-        "北方华创 +2.96% ✅",
-        "中微公司 +4.85% ✅",
+        "北方华创 +4.66% ✅",
+        "中微公司 +0.26% ⚠️",
         "拓荆科技 待更新",
         "华海清科 待更新"
       ],
-      "verify": "北方华创/中微公司连续强势，独立逻辑成立 ✅"
+      "verify": "北方华创三连阳✅，今日看能否四连阳，国产替代独立逻辑持续验证",
+      "matrixRow": "强逻辑",
+      "matrixCol": "今天强",
+      "layer": "domestic_substitution",
+      "status": "focus"
+    },
+    {
+      "id": "ai_chip",
+      "name": "AI 芯片与算力",
+      "color": "#3b82f6",
+      "heat": "扩散",
+      "longTerm": "国产替代",
+      "todayStatus": "先观察",
+      "opportunityLevel": "等企稳",
+      "opportunityReason": "AMD爆拉4.73%提供催化，但A股AI芯片需等开盘确认是否补涨，暂观望",
+      "logic": "AMD爆拉4.73%领涨，但NVDA横盘+AVGO转跌，AI芯片叙事分化",
+      "overseas": [
+        "英伟达 NVDA +0.16% ⚠️",
+        "超微 AMD +4.73% 🔥",
+        "博通 AVGO -0.91% ❌"
+      ],
+      "china": [
+        "寒武纪 +1.68% ✅",
+        "中科曙光 +0.96% ✅",
+        "海光信息 待更新",
+        "浪潮信息 待更新"
+      ],
+      "verify": "AI芯片反弹修复，美股AMD领涨+2.16%，A股跟随改善 ✅",
+      "matrixRow": "强逻辑",
+      "matrixCol": "今天回暖",
+      "layer": "global_ai",
+      "status": "focus"
     },
     {
       "id": "optical",
@@ -956,43 +1162,51 @@
       "longTerm": "海外映射方向",
       "todayStatus": "等修复",
       "opportunityLevel": "等企稳",
-      "opportunityReason": "中际旭创-2.01%、新易盛-4.55%走弱，映射链阻滞，等美股确认后修复",
-      "logic": "海外映射方向，今日承压走弱，等待美股确认后修复",
+      "opportunityReason": "分化严重：中际旭创+2.22%反弹但新易盛-3.71%连续两日明显走弱，映射链修复不完整，需等新易盛止跌",
+      "logic": "冰火两重天：旭创反弹vs新易盛续跌，映射链修复不完整",
       "overseas": [
         "Lumentum",
         "相干 Coherent",
-        "博通 AVGO +1.13%"
+        "博通 AVGO +0.67%"
       ],
       "china": [
-        "中际旭创 -2.01% ❌",
-        "新易盛 -4.55% ❌",
+        "中际旭创 +2.22% ✅",
+        "新易盛 -3.71% ❌",
         "天孚通信 待更新",
         "剑桥科技 待更新"
       ],
-      "verify": "美股SOXX走强，但A股光模块今日走弱，映射链阻滞，等修复"
+      "verify": "旭创反弹+2.22%是修复信号，但新易盛-3.71%续跌，今日继续观察",
+      "matrixRow": "强逻辑",
+      "matrixCol": "今天分化",
+      "layer": "global_ai",
+      "status": "wait_repair"
     },
     {
-      "id": "ai_chip",
-      "name": "AI 芯片与算力",
-      "color": "#3b82f6",
-      "heat": "扩散",
-      "longTerm": "国产替代",
-      "todayStatus": "等修复",
-      "opportunityLevel": "等企稳",
-      "opportunityReason": "寒武纪-0.93%微跌，美股AI芯片走强但A股映射方向待确认",
-      "logic": "美股AI芯片走强，A股寒武纪今日微跌，映射方向待确认",
+      "id": "cloud_app",
+      "name": "云计算与 AI 应用",
+      "color": "#10b981",
+      "heat": "观察",
+      "longTerm": "AI落地场景",
+      "todayStatus": "可关注",
+      "opportunityLevel": "可跟踪",
+      "opportunityReason": "港股全面转强（腾讯+1.40%、小米+1.39%），从分化到共振是积极信号，美股META+1.45%领涨应用层",
+      "logic": "META转跌+MSFT几乎平盘，应用层方向分化，港股全面补涨是积极信号",
       "overseas": [
-        "英伟达 NVDA +1.24%",
-        "超微 AMD +1.51%",
-        "博通 AVGO +1.13%"
+        "微软 MSFT +0.10% ⚠️",
+        "Meta META -0.26% ❌",
+        "亚马逊 AMZN 待更新"
       ],
       "china": [
-        "寒武纪 -0.93%",
-        "海光信息 待更新",
-        "工业富联 待更新",
-        "浪潮信息 待更新"
+        "腾讯 +1.40% ✅",
+        "小米 +1.39% ✅",
+        "金山办公 待更新",
+        "科大讯飞 待更新"
       ],
-      "verify": "美股AI芯片走强，A股映射方向待确认，等修复"
+      "verify": "港股全面补涨✅，但美股应用层分化⚠️，映射链不完全成立",
+      "matrixRow": "一般逻辑",
+      "matrixCol": "今天回暖",
+      "layer": "watch",
+      "status": "focus"
     },
     {
       "id": "server_pcb",
@@ -1000,14 +1214,14 @@
       "color": "#f59e0b",
       "heat": "扩散",
       "longTerm": "算力基础设施",
-      "todayStatus": "等修复",
+      "todayStatus": "先观察",
       "opportunityLevel": "等企稳",
-      "opportunityReason": "数据不完整（多只标的待更新），无法确认强度，等数据补齐",
-      "logic": "跟随设备方向，今日表现待更新",
+      "opportunityReason": "数据不完整（多只标的待更新），跟随光模块方向分化概率大，需等数据确认",
+      "logic": "跟随光模块/AI算力方向，今日光模块分化，服务器链待确认",
       "overseas": [
         "超微电脑 SMCI",
         "戴尔 DELL",
-        "博通 AVGO +1.13%"
+        "博通 AVGO +0.67%"
       ],
       "china": [
         "工业富联 待更新",
@@ -1015,7 +1229,11 @@
         "胜宏科技 待更新",
         "深南电路 待更新"
       ],
-      "verify": "服务器链是否跟随设备方向走强？"
+      "verify": "服务器链跟随光模块方向？光模块分化，服务器链待确认",
+      "matrixRow": "一般逻辑",
+      "matrixCol": "待确认",
+      "layer": "global_ai",
+      "status": "wait_repair"
     },
     {
       "id": "storage",
@@ -1025,7 +1243,7 @@
       "longTerm": "周期反转",
       "todayStatus": "先观察",
       "opportunityLevel": "暂回避",
-      "opportunityReason": "数据不完整且无验证信号，存储方向暂时没有明确催化剂",
+      "opportunityReason": "数据不完整且无验证信号，存储方向无明确催化剂，资金集中在半导体设备和AI芯片",
       "logic": "HBM和DRAM价格预期改善，但今日强度待验证",
       "overseas": [
         "美光 MU",
@@ -1039,30 +1257,11 @@
         "佰维存储 待更新",
         "江波龙 待更新"
       ],
-      "verify": "存储方向能否跟随设备方向走强？"
-    },
-    {
-      "id": "cloud_app",
-      "name": "云计算与 AI 应用",
-      "color": "#10b981",
-      "heat": "观察",
-      "longTerm": "AI落地场景",
-      "todayStatus": "先观察",
-      "opportunityLevel": "暂回避",
-      "opportunityReason": "腾讯-1.80%走弱，应用层分化持续，没有明确催化剂",
-      "logic": "应用层走势更分化，先观察是否从单点走向扩散",
-      "overseas": [
-        "微软 MSFT +0.35%",
-        "亚马逊 AMZN",
-        "谷歌 GOOGL",
-        "Meta META +0.68%"
-      ],
-      "china": [
-        "金山办公 待更新",
-        "科大讯飞 待更新",
-        "腾讯 -1.80%"
-      ],
-      "verify": "应用层分化是否持续？"
+      "verify": "存储方向能否跟随设备方向走强？暂无信号",
+      "matrixRow": "一般逻辑",
+      "matrixCol": "待确认",
+      "layer": "diffusion",
+      "status": "observe"
     },
     {
       "id": "edge_ai",
@@ -1070,20 +1269,25 @@
       "color": "#ec4899",
       "heat": "观察",
       "longTerm": "终端重构",
-      "todayStatus": "先观察",
-      "opportunityLevel": "暂回避",
-      "opportunityReason": "端侧方向无验证信号，短线资金集中在设备和光模块",
-      "logic": "短线资金集中在设备和光模块，端侧方向先观察",
+      "todayStatus": "可关注",
+      "opportunityLevel": "可跟踪",
+      "opportunityReason": "小米+1.39%港股反弹修复（昨日-1.82%），端侧方向从弱势转积极，但A股端侧标的待确认",
+      "logic": "港股小米+1.39%反弹，端侧方向修复信号",
       "overseas": [
         "苹果 AAPL",
         "特斯拉 TSLA",
         "高通 QCOM"
       ],
       "china": [
+        "小米 +1.39% ✅",
         "立讯精密 待更新",
         "歌尔股份 待更新"
       ],
-      "verify": "端侧方向何时从观察升级？"
+      "verify": "小米反弹是端侧修复信号，但A股端侧标的待确认 ⚠️",
+      "matrixRow": "一般逻辑",
+      "matrixCol": "今天回暖",
+      "layer": "diffusion",
+      "status": "observe"
     }
   ],
   "healthRadar": {
@@ -1091,7 +1295,7 @@
     "dimensions": [
       {
         "name": "涨得贵不贵",
-        "level": 60,
+        "level": 65,
         "signal": "yellow",
         "label": "看核心股票涨幅是不是太快太急",
         "originalName": "估值拥挤"
@@ -1119,13 +1323,45 @@
       },
       {
         "name": "是不是只剩少数股票在涨",
-        "level": 50,
+        "level": 58,
         "signal": "yellow",
         "label": "看上涨的股票面是不是在缩窄",
         "originalName": "主题退潮"
       }
     ]
-  }
+  },
+  "glossary": [
+    {
+      "term": "SOXX",
+      "full": "iShares半导体ETF",
+      "meaning": "跟踪美股30只半导体龙头，是衡量海外半导体情绪的核心指标"
+    },
+    {
+      "term": "传导温度",
+      "full": "0-100分",
+      "meaning": "综合美股→A股映射强度的打分，越高说明海外涨A股越跟涨"
+    },
+    {
+      "term": "光模块/CPO",
+      "full": "数据中心高速光通信模块",
+      "meaning": "AI算力建设的核心硬件，A股代表：中际旭创、新易盛"
+    },
+    {
+      "term": "TMT成交占比",
+      "full": "科技/媒体/通信板块成交额占全市场比例",
+      "meaning": ">50%说明资金过度集中在科技，<30%说明科技冷清"
+    },
+    {
+      "term": "国产替代",
+      "full": "半导体设备/材料自主化",
+      "meaning": "不受海外出口管制影响，A股独立逻辑，代表：北方华创、中微公司"
+    },
+    {
+      "term": "映射链断裂",
+      "full": "美股涨但A股不跟",
+      "meaning": "说明资金不认同海外逻辑，或A股已有独立定价"
+    }
+  ]
 }
 </script>
 
@@ -1135,15 +1371,28 @@ const DATA_FILE = 'dashboard-data.json';
 
 // ===== 视角切换 =====
 function switchView(view) {
-  document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
-  const mapping = {
-    verify: ['viewVerify', 'viewTheme'],
-    chain: ['viewChain', 'viewVerify'],
-    theme: ['viewTheme']
+  // 更新主tab高亮
+  document.querySelectorAll('.main-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.view === view);
+  });
+  // 每次只显示一个section
+  var allSections = ['viewVerify', 'viewChain', 'viewTheme'];
+  var viewMap = {
+    verify: 'viewVerify',
+    chain: 'viewChain',
+    theme: 'viewTheme'
   };
-  const show = mapping[view] || [];
-  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('visible'));
-  show.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('visible'); });
+  var target = viewMap[view] || 'viewVerify';
+  allSections.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      if (id === target) {
+        el.classList.add('visible');
+      } else {
+        el.classList.remove('visible');
+      }
+    }
+  });
 }
 
 // ===== 主题卡片联动 =====
@@ -1173,20 +1422,58 @@ function toggleReasoning() {
 
 // ===== 适配层 =====
 function adaptData(json) {
+  // 计算绝对日期（根据 _meta.updated）
+  var updatedStr = (json._meta && json._meta.updated) || '';
+  var baseDate = null;
+  // 尝试从 "2026-06-11 18:05" 或 "2026年06月11日 18:05" 中提取日期
+  var dateMatch = updatedStr.match(/(\d{4})[年\-](\d{2})[月\-](\d{2})/);
+  if (dateMatch) {
+    baseDate = new Date(parseInt(dateMatch[1]), parseInt(dateMatch[2])-1, parseInt(dateMatch[3]));
+  }
+  function getAbsoluteDate(offsetDays, fmt) {
+    if (!baseDate) return '';
+    var d = new Date(baseDate);
+    d.setDate(d.getDate() + offsetDays);
+    var y = d.getFullYear();
+    var m = ('0' + (d.getMonth()+1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    if (fmt === 'short') return m + '/' + day;
+    return y + '年' + m + '月' + day + '日';
+  }
+  // 替换文本中的相对日期（返回新文本，相对日期后加绝对日期括号）
+  function annotateDate(text) {
+    if (!text || !baseDate) return text;
+    var todayShort = getAbsoluteDate(0, 'short');
+    var tmrwShort = getAbsoluteDate(1, 'short');
+    // 先清除已有的日期括号标注（避免重复）
+    text = text.replace(/[（(]\d{1,2}\/\d{1,2}晚?[）)]/g, '');
+    // 替换规则：今晚 → 今晚（6/11晚）、明天 → 明天（6/12）等
+    return text
+      .replace(/今晚/g, '今晚（' + todayShort + '晚）')
+      .replace(/明天/g, '明天（' + tmrwShort + '）')
+      .replace(/明日/g, '明日（' + tmrwShort + '）')
+      .replace(/今日/g, '今日（' + todayShort + '）')
+      .replace(/当天/g, '当天（' + todayShort + '）')
+      .replace(/次日/g, '次日（' + tmrwShort + '）');
+  }
+
   let result = {
-    verdict: json.verdict.sentence,
-    plainText: json.verdict.plainText || '',
+    verdict: annotateDate(json.verdict.sentence || ''),
+    plainText: annotateDate(json.verdict.plainText || ''),
     temperature: json.verdict.temperature,
     tempLabel: json.verdict.temperatureLabel,
-    tempSub: json.verdict.temperatureSub || '',
+    tempSub: annotateDate(json.verdict.temperatureSub || ''),
     reasoning: json.verdict.reasoning || null,
     drivers: (json.drivers || []).map((d, i) => ({
       num: ['①','②','③'][i] || (i+1),
-      text: d.title + '：' + d.detail
+      // 对 title 和 detail 分别应用日期标注
+      text: annotateDate(d.title || '') + '：' + annotateDate(d.detail || '')
     })),
     eventChain: (json.eventChain || []).map(ev => ({
       ...ev,
-      plainText: ev.plainText || ''
+      plainText: ev.plainText || '',
+      // 交易阶段中文显示（数据中有 tradingStage 字段时自动转换）
+      tradingStageText: ev.tradingStage ? ({'pre-market':'盘前报价','regular':'盘中（美东'+ (ev.tradingTime||'XX:XX') + '）','after-hours':'盘后','closed':'收盘','nav':'NAV变化'}[ev.tradingStage] || ev.tradingStage) : (ev.tradingStageText || '')
     })),
     checklist: json.checklist || [],
     themes: (json.themes || []).map(t => {
@@ -1214,22 +1501,129 @@ function adaptData(json) {
       desc: d.label
     })) : [],
     _meta: json._meta || {},
-    healthCheck: json._meta?.healthCheck || null,
+    healthCheck: (function() {
+      var hc = json._meta?.healthCheck || null;
+      if (!hc) return null;
+      // 适配新旧两种格式
+      // 新格式：{ dataSource: {...}, dataCompleteness: {...}, overall可信度: '...' }
+      // 旧格式：{ passed: true/false, totalErrors: N, totalWarnings: N, ... }
+      if (hc.dataSource || hc.dataCompleteness) {
+        // 新格式
+        var ds = hc.dataSource || { passed: false, totalErrors: '?', totalWarnings: '?', checkedAt: '', details: '' };
+        var dc = hc.dataCompleteness || { score: 0, missingItems: [], checkedAt: '', details: '' };
+        var overall = hc.overall可信度 || (ds.passed ? (dc.score >= 0.8 ? '高' : (dc.score >= 0.5 ? '中' : '低')) : '低');
+        return {
+          dataSourcePassed: ds.passed,
+          dataSourceErrors: ds.totalErrors || 0,
+          dataSourceWarnings: ds.totalWarnings || 0,
+          dataSourceCheckedAt: ds.checkedAt || '',
+          dataSourceDetails: ds.details || '',
+          dataCompletenessScore: dc.score || 0,
+          dataCompletenessMissing: dc.missingItems || [],
+          dataCompletenessCheckedAt: dc.checkedAt || '',
+          dataCompletenessDetails: dc.details || '',
+          overall: overall
+        };
+      } else {
+        // 旧格式，自动检测数据完整度
+        var allStr = JSON.stringify(json);
+        var pendingN = (allStr.match(/待更新/g) || []).length;
+        var compScore = pendingN === 0 ? 1 : Math.max(0, 1 - pendingN / 30);
+        var compLabel = compScore >= 0.8 ? '高' : compScore >= 0.5 ? '中' : '低';
+        return {
+          dataSourcePassed: hc.passed,
+          dataSourceErrors: hc.totalErrors || 0,
+          dataSourceWarnings: hc.totalWarnings || 0,
+          dataSourceCheckedAt: hc.checkedAt || '',
+          dataSourceDetails: hc.details || '',
+          dataCompletenessScore: compScore,
+          dataCompletenessMissing: pendingN > 0 ? ['有' + pendingN + '项数据待更新'] : [],
+          dataCompletenessCheckedAt: hc.checkedAt || '',
+          dataCompletenessDetails: '自动检测：发现' + pendingN + '处待更新，完整度' + Math.round(compScore * 100) + '%',
+          overall: compLabel
+        };
+      }
+    })(),
     actionGuide: json.actionGuide || json.verdict?.actionGuide || null,
-    stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' }
+    stage: json.stage || { type: 'evening', label: '晚间复盘', goal: '' },
+    glossary: json.glossary || []
   };
+    // 为文案字段标注绝对日期（P0-4）
+  result.plainText = annotateDate(result.plainText || '');
+  result.tempSub = annotateDate(result.tempSub || '');
+  // eventChain
+  (result.eventChain || []).forEach(function(ev) {
+    ev.detail = annotateDate(ev.detail || '');
+    ev.plainText = annotateDate(ev.plainText || '');
+    (ev.expand||{}).items = (ev.expand||{}).items || [];
+    ev.expand.items = ev.expand.items.map(function(item) { return annotateDate(item); });
+  });
+  // checklist
+  (result.checklist || []).forEach(function(c) {
+    c.result = annotateDate(c.result || '');
+    c.good = annotateDate(c.good || '');
+    c.means = annotateDate(c.means || '');
+  });
+  // actionGuide
+  if (result.actionGuide) {
+    result.actionGuide.summary = annotateDate(result.actionGuide.summary || '');
+    result.actionGuide.doNot = annotateDate(result.actionGuide.doNot || '');
+    (result.actionGuide.watch || []).forEach(function(w, idx) {
+      result.actionGuide.watch[idx] = annotateDate(w || '');
+    });
+  }
+
   window.D = result;
   return result;
 }
 
 // ===== 渲染 =====
 function render(D) {
-  // 阶段感知：根据 stage 更新模块标题
+  // 阶段感知：根据 stage 更新页面标题、副标题、模块标题
+  var stageConfig = {
+    morning: {
+      pageTitleSuffix: '· 早盘机会版',
+      pageSubtitle: '看懂昨夜美股，判断今天A股科技怎么验证——跟涨、分化，还是先避险',
+      stageIcon: '🌅',
+      stageLabel: '早盘机会版',
+      stageNote: '看今天A股怎么验证昨晚美股信号'
+    },
+    midday: {
+      pageTitleSuffix: '· 盘中验证版',
+      pageSubtitle: '对照上午信号，看哪些方向已确认强势，哪些下午继续验证',
+      stageIcon: '📊',
+      stageLabel: '盘中验证版',
+      stageNote: '上午验证完成，下午继续观察'
+    },
+    evening: {
+      pageTitleSuffix: '· 盘后复盘版',
+      pageSubtitle: '全天数据已汇总，预判今晚美股和明日A股方向',
+      stageIcon: '✅',
+      stageLabel: '盘后复盘版',
+      stageNote: '全天收完，预判明天A股科技能不能继续'
+    }
+  };
+  var sc = stageConfig[D.stage.type] || stageConfig.evening;
+
+  // 动态更新页面标题和副标题
+  var titleEl = document.getElementById('pageTitle');
+  var subtitleEl = document.getElementById('pageSubtitle');
+  if (titleEl) titleEl.innerHTML = '🌍 全球科技传导验证雷达<span style="font-size:0.65em;color:var(--accent-cyan);margin-left:8px;">' + sc.pageTitleSuffix + '</span>';
+  if (subtitleEl) subtitleEl.textContent = sc.pageSubtitle;
+
+  // 更新阶段badge（更完整的信息）
+  var stageEl = document.getElementById('stageBadge');
+  if (stageEl && D.stage) {
+    stageEl.style.display = 'inline-flex';
+    stageEl.innerHTML = '<span class="stage-icon">' + sc.stageIcon + '</span>' + sc.stageLabel + '<span class="stage-note">' + sc.stageNote + '</span>';
+    stageEl.title = '当前数据阶段：' + sc.stageLabel + '\n' + sc.stageNote;
+  }
+
   var stageTitles = {
     morning: {
       section2Title: '今天A股科技能不能接住昨晚美股信号？对照下面几条看',
-      section3Title: '昨晚美股发生了什么 · 看看全球市场是怎么传导的 · 点击节点看详情',
-      section4Title: '哪些方向值得今天关注 · 分清长期主线和今天能不能碰'
+      section3Title: '昨晚美股点火后，A股怎么接 · 点击看详情',
+      section4Title: '哪些能跟踪，哪些先别追 · 分清长期主线和今天能不能碰'
     },
     midday: {
       section2Title: '上午验证结果出来了没？对照下面看哪些信号已经确认',
@@ -1267,18 +1661,51 @@ function render(D) {
   timeEl.textContent = '';
   timeEl.appendChild(document.createTextNode('数据更新：' + (D._meta.updated || new Date().toLocaleString('zh-CN',{hour12:false}))));
 
-  // 健康检查指示器
+  // 健康检查指示器（多层显示）
   var badge = document.getElementById('healthBadge');
   var badgeText = document.getElementById('healthBadgeText');
   if (badge && badgeText) {
-    if (D.healthCheck && D.healthCheck.passed === true) {
-      badge.className = 'health-indicator passed';
-      badge.title = '数据源健康检查通过 · ' + (D.healthCheck.checkedAt || '') + ' · 错误0 警告' + (D.healthCheck.totalWarnings || 0);
-      badgeText.textContent = '数据可信';
-    } else if (D.healthCheck && D.healthCheck.passed === false) {
-      badge.className = 'health-indicator failed';
-      badge.title = '数据源健康检查未通过 · 错误' + (D.healthCheck.totalErrors || '?') + ' 警告' + (D.healthCheck.totalWarnings || '?') + ' · ' + (D.healthCheck.checkedAt || '');
-      badgeText.textContent = '数据异常(' + (D.healthCheck.totalErrors || '?') + ')';
+    var hc = D.healthCheck;
+    if (hc) {
+      // 根据 overall 可信度设置badge颜色和文字
+      var overallMap = {'高': { cls: 'passed', text: '数据可信', color: 'green' }, '中': { cls: 'passed', text: '数据参考', color: 'yellow' }, '低': { cls: 'failed', text: '数据异常', color: 'red' }};
+      var ob = overallMap[hc.overall] || overallMap['低'];
+      badge.className = 'health-indicator ' + ob.cls;
+      badgeText.textContent = ob.text;
+
+      // 构建详细tooltip（多层信息）
+      var tip = '健康检查（多层）\n\n';
+      tip += '【数据源连接】\n';
+      tip += '  状态：' + (hc.dataSourcePassed ? '正常' : '异常') + '\n';
+      tip += '  错误：' + hc.dataSourceErrors + '  警告：' + hc.dataSourceWarnings + '\n';
+      tip += '  检查时间：' + hc.dataSourceCheckedAt + '\n';
+      tip += '  详情：' + hc.dataSourceDetails + '\n\n';
+      tip += '【关键指标完整度】\n';
+      tip += '  完整度：' + Math.round(hc.dataCompletenessScore * 100) + '%\n';
+      if (hc.dataCompletenessMissing && hc.dataCompletenessMissing.length > 0) {
+        tip += '  缺失项：' + hc.dataCompletenessMissing.join('、') + '\n';
+      }
+      tip += '  检查时间：' + hc.dataCompletenessCheckedAt + '\n';
+      tip += '  详情：' + hc.dataCompletenessDetails + '\n\n';
+      tip += '【综合可信度】' + hc.overall;
+      badge.title = tip;
+
+      // 如果完整度低，在页面上显示一个警告
+      if (hc.dataCompletenessScore < 0.5 && hc.dataCompletenessMissing.length > 0) {
+        // 在首屏行动指令区域显示完整度警告
+        var agEl = document.getElementById('actionGuide');
+        if (agEl) {
+          var warningDiv = document.createElement('div');
+          warningDiv.style.cssText = 'margin:10px 0 0;padding:10px 14px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;font-size:0.82rem;color:var(--accent-red);line-height:1.6;';
+          warningDiv.innerHTML = '⚠️ 关键指标不完整：' + hc.dataCompletenessMissing.join('、') + ' 等数据缺失，当前结论可信度为"' + hc.overall + '"，不宜给强行动建议。';
+          // 插入到 actionGuide 的开头
+          if (agEl.firstChild) {
+            agEl.insertBefore(warningDiv, agEl.firstChild);
+          } else {
+            agEl.appendChild(warningDiv);
+          }
+        }
+      }
     } else {
       badge.className = 'health-indicator none';
       badge.title = '未执行健康检查';
@@ -1294,17 +1721,40 @@ function render(D) {
   var plainEl = document.getElementById('verdictPlain');
   if (plainEl) plainEl.textContent = D.plainText;
 
-  // 今日策略
+  // 今日策略（改进：更突出行动指令）
   var agEl = document.getElementById('actionGuide');
   if (agEl && D.actionGuide) {
     var ag = D.actionGuide;
     var cls = ag.stance === '偏进攻' ? 'stance-attack' : ag.stance === '先观察' ? 'stance-watch' : 'stance-defend';
     agEl.className = 'action-guide ' + cls;
     agEl.style.display = '';
-    agEl.innerHTML = '<div class="action-guide-stance"><span class="stance-label">今日策略：' + ag.stance + '</span></div>'
-      + '<div class="action-guide-summary">' + ag.summary + '</div>'
-      + '<div class="action-guide-watch">看盘规则：' + (ag.watch || []).map(function(w){ return '<span>' + w + '</span>'; }).join('') + '</div>'
-      + (ag.doNot ? '<div class="action-guide-donot">' + ag.doNot + '</div>' : '');
+    
+    // 改进渲染：更突出行动指令
+    var watchHtml = (ag.watch || []).map(function(w, idx) {
+      // 尝试解析"可跟踪/等企稳/暂回避"
+      var cls = w.indexOf('可') > -1 ? 'watch-ok' : w.indexOf('等') > -1 ? 'watch-wait' : w.indexOf('暂') > -1 ? 'watch-avoid' : 'watch-normal';
+      return '<span class="' + cls + '">' + w + '</span>';
+    }).join('');
+    
+    // 根据 stage 动态显示策略文案
+    var stageType = (D.stage && D.stage.type) || 'evening';
+    var strategyLabel = stageType === 'morning' ? '今日策略' : stageType === 'midday' ? '下午看什么' : '明日观察';
+    var watchLabel = stageType === 'morning' ? '今天看什么' : stageType === 'midday' ? '下午看什么' : '明天看什么';
+    var donotLabel = stageType === 'morning' ? '今天别做' : stageType === 'midday' ? '下午别做' : '明天别急做';
+    
+    agEl.innerHTML = ''
+      + '<div class="action-guide-header">'
+      + '  <div class="action-guide-stance"><span class="stance-icon">' + (ag.stance === '偏进攻' ? '📈' : ag.stance === '先观察' ? '👀' : '🛡️') + '</span>' + strategyLabel + '：' + ag.stance + '</div>'
+      + '  <div class="action-guide-verdict">' + (D.verdict || '当前结论：' + ag.stance) + '</div>'
+      + '</div>'
+      + '<div class="action-guide-body">'
+      + '  <div class="action-guide-summary">' + ag.summary + '</div>'
+      + '  <div class="action-guide-rules">'
+      + '    <div class="rules-label">📌 ' + watchLabel + '</div>'
+      + '    <div class="rules-list">' + watchHtml + '</div>'
+      + '  </div>'
+      + (ag.doNot ? '  <div class="action-guide-donot"><span class="donot-icon">⚠️</span><span class="donot-text">' + donotLabel + '：' + ag.doNot + '</span></div>' : '')
+      + '</div>';
   } else if (agEl) {
     agEl.style.display = 'none';
   }
@@ -1351,30 +1801,35 @@ function render(D) {
     return '<div class="driver-card"><div class="driver-num">' + d.num + '</div><div class="driver-text">' + d.text + '</div></div>';
   }).join('');
 
-  // 验证清单（看什么、怎么算好、说明什么）
-  document.getElementById('checklist').innerHTML = D.checklist.map(function(c) {
-    if (c.watch) {
-      // 新结构
-      return '<div class="check-item">' +
-        '<div class="check-icon ' + c.icon + '">' + (c.icon==='pass'?'\u2713':c.icon==='fail'?'\u2717':'?') + '</div>' +
-        '<div class="check-structured">' +
-          '<div><span class="check-label">看什么</span><div class="check-value"><strong>' + c.watch + '</strong></div></div>' +
-          '<div><span class="check-label">怎么算好</span><div class="check-value">' + c.good + '</div></div>' +
-          '<div><span class="check-label">说明什么</span><div class="check-value">' + c.means + '</div></div>' +
-        '</div>' +
+  // 验证清单（P1-2：四列结构化）
+  document.getElementById('checklist').innerHTML = '<div class="checklist-4col">' +
+    '<div class="checklist-header">' +
+      '<div class="check-col-h">看什么</div>' +
+      '<div class="check-col-h">当前状态</div>' +
+      '<div class="check-col-h">怎么确认</div>' +
+      '<div class="check-col-h">警惕信号</div>' +
+    '</div>' +
+    D.checklist.map(function(c) {
+      var iconMap = { pass: '✅', fail: '❌', pending: '⏳', 'weak-pass': '⚠️' };
+      var statusClass = c.icon === 'pass' ? 'status-pass' : c.icon === 'fail' ? 'status-fail' : c.icon === 'weak-pass' ? 'status-weak-pass' : 'status-pending';
+      var statusLabel = c.statusLabel || (c.icon === 'pass' ? '通过' : c.icon === 'fail' ? '未通过' : c.icon === 'weak-pass' ? '弱通过' : '待确认');
+      return '<div class="check-row">' +
+        '<div class="check-col check-col-watch"><div class="check-watch-text">' + c.watch + '</div></div>' +
+        '<div class="check-col check-col-result"><div class="check-status ' + statusClass + '">' + iconMap[c.icon] + '<span class="status-label">' + statusLabel + '</span> ' + (c.result || '待确认') + '</div></div>' +
+        '<div class="check-col check-col-good"><div class="check-good-text">' + c.good + '</div></div>' +
+        '<div class="check-col check-col-reversal"><div class="check-reversal-text">🔄 ' + (c.reversalCondition || '待补充') + '</div></div>' +
       '</div>';
-    } else {
-      // 旧结构兼容
-      return '<div class="check-item">' +
-        '<div class="check-icon ' + c.icon + '">' + (c.icon==='pass'?'\u2713':c.icon==='fail'?'\u2717':'?') + '</div>' +
-        '<div class="check-text">' + c.text + '</div>' +
-      '</div>';
-    }
-  }).join('');
+    }).join('') +
+  '</div>';
 
-  // 事件链（加人话）
+  // 事件链（加人话 + 交易阶段标注）
   document.getElementById('eventChain').innerHTML = D.eventChain.map(function(ev) {
     var plainHtml = ev.plainText ? '<div class="event-plain">' + ev.plainText + '</div>' : '';
+    // 交易阶段标注（美股数据必须标明）
+    var stageHtml = '';
+    if (ev.tradingStageText) {
+      stageHtml = '<div style="margin:8px 0 4px;font-size:0.72rem;color:var(--accent-cyan);background:rgba(6,182,212,0.08);border-left:3px solid var(--accent-cyan);padding:4px 10px;border-radius:0 6px 6px 0;">⏱ 数据口径：' + ev.tradingStageText + '</div>';
+    }
     return '<div class="event-node" onclick="this.classList.toggle(\'expanded\')">' +
       '<div class="event-dot-col"><div class="event-dot ' + ev.dotColor + ' ' + (ev.current ? 'current' : '') + '"></div></div>' +
       '<div class="event-content">' +
@@ -1384,6 +1839,7 @@ function render(D) {
           '<span class="event-status ' + ev.status + '">' + ev.statusText + '</span>' +
         '</div>' +
         '<div class="event-detail">' + ev.detail + '</div>' +
+        stageHtml +
         plainHtml +
         '<div class="event-tags">' + (ev.tags||[]).map(function(t) { return '<span class="event-tag ' + t.type + '">' + t.text + '</span>'; }).join('') + '</div>' +
         '<div class="event-expand">' +
@@ -1395,29 +1851,60 @@ function render(D) {
     '</div>';
   }).join('');
 
-  // 主题矩阵（海外中文名）
-  document.getElementById('themeMatrix').innerHTML = D.themes.map(function(t) {
-    var heatClass = t.heat==='\u4e3b\u7ebf' ? 'theme-mainline' : t.heat==='\u6269\u6563' ? 'theme-spread' : 'theme-watching';
-    var heatBadge = t.heat==='\u4e3b\u7ebf' ? 'heat-main' : t.heat==='\u6269\u6563' ? 'heat-spread' : 'heat-watch';
-    return '<div class="theme-card ' + heatClass + '" data-id="' + t.id + '" onclick="highlightTheme(\'' + t.id + '\')">' +
-      '<div class="theme-header">' +
-        '<div class="theme-dot" style="background:' + t.color + '"></div>' +
-        '<div class="theme-name">' + t.name + '</div>' +
-      '</div>' +
-      '<div class="theme-dual-tags">' +
-        '<span class="theme-heat ' + heatBadge + '">' + t.heat + '</span>' +
-        '<span class="theme-today-status status-' + (t.todayStatus||'observe') + '">' + (t.todayStatusText || '先观察') + '</span>' +
-      '</div>' +
-      '<div class="theme-logic">\ud83d\udca1 ' + t.logic + '</div>' +
-      '<div class="theme-section">' +
-        '<div class="theme-section-label-plain">海外代表</div>' +
-        '<div class="theme-tags">' + (t.overseas||[]).map(function(s) { return '<span class="theme-tag overseas">' + s + '</span>'; }).join('') + '</div>' +
-      '</div>' +
-      '<div class="theme-section">' +
-        '<div class="theme-section-label-plain">A股对应</div>' +
-        '<div class="theme-tags">' + (t.china||[]).map(function(s) { return '<span class="theme-tag china">' + s + '</span>'; }).join('') + '</div>' +
-      '</div>' +
-      (t.verify ? '<div class="theme-verify">\ud83d\udd0d 验证点：' + t.verify + '</div>' : '') +
+  // 主题矩阵（2D矩阵视图）
+  (function renderThemeMatrix() {
+    var rows = ['global_ai', 'domestic_substitution', 'diffusion', 'watch'];
+    var cols = ['focus', 'wait_repair', 'observe', 'avoid_chase'];
+    var rowLabels = {'global_ai': '🌐 全球AI主线', 'domestic_substitution': '🇨🇳 国产替代主线', 'diffusion': '🔄 科技扩散方向', 'watch': '👀 观察/低确认'};
+    var colLabels = {'focus': '👀 重点观察', 'wait_repair': '⏳ 等修复', 'observe': '👁️ 先观察', 'avoid_chase': '⚠️ 避免追'};
+    var grid = {};
+    rows.forEach(function(r) { grid[r] = {}; cols.forEach(function(c) { grid[r][c] = []; }); });
+    D.themes.forEach(function(t) {
+      var r = t.layer || 'watch';
+      var c = t.status || 'observe';
+      if (grid[r] && grid[r][c]) grid[r][c].push(t);
+    });
+    var h = '<table class="matrix-table"><thead><tr><th></th>';
+    cols.forEach(function(c) { h += '<th>' + colLabels[c] + '</th>'; });
+    h += '</tr></thead><tbody>';
+    rows.forEach(function(r) {
+      h += '<tr><th class="row-header">' + rowLabels[r] + '</th>';
+      cols.forEach(function(c) {
+        var items = grid[r][c];
+        h += '<td>';
+        if (items.length === 0) {
+          h += '<div class="matrix-cell-empty">暂无方向<br><span style="font-size:0.68rem;">今天没有资金明显验证</span></div>';
+        } else {
+          items.forEach(function(t) {
+            var changeStr = '';
+            if (t.china) { for (var i = 0; i < t.china.length; i++) { if (t.china[i].indexOf('%') !== -1) { changeStr = t.china[i]; break; } } }
+            var cls = changeStr.indexOf('+') !== -1 ? 'up' : changeStr.indexOf('-') !== -1 ? 'down' : '';
+            h += '<div class="matrix-theme-card" data-theme-id=" + t.id + ">';
+            h += '<div class="mt-name">' + t.name + '</div>';
+            if (changeStr) h += '<div class="mt-change ' + cls + '">' + changeStr + '</div>';
+            h += '<div class="mt-status">' + (t.todayStatus || '') + '</div>';
+            h += '</div>';
+          });
+        }
+        h += '</td>';
+      });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    document.getElementById('themeMatrix').innerHTML = h;
+  })();
+
+  // 主题列表（原卡片视图，保留作为详情视图）
+  document.getElementById('themeList').innerHTML = D.themes.map(function(t) {
+    var heatClass = t.heat === '主线' ? 'theme-mainline' : t.heat === '扩散' ? 'theme-spread' : 'theme-watching';
+    var heatBadge = t.heat === '主线' ? 'heat-main' : t.heat === '扩散' ? 'heat-spread' : 'heat-watch';
+    return '<div class="theme-card ' + heatClass + '" data-id="' + t.id + '" >' +
+      '<div class="theme-header"><div class="theme-dot" style="background:' + t.color + '"></div><div class="theme-name">' + t.name + '</div></div>' +
+      '<div class="theme-dual-tags"><span class="theme-heat ' + heatBadge + '">' + t.heat + '</span><span class="theme-today-status status-' + (t.todayStatus || 'observe') + '">' + (t.todayStatusText || '先观察') + '</span></div>' +
+      '<div class="theme-logic">💡 ' + t.logic + '</div>' +
+      '<div class="theme-section"><div class="theme-section-label-plain">海外代表</div><div class="theme-tags">' + (t.overseas || []).map(function(s) { return '<span class="theme-tag overseas">' + s + '</span>'; }).join('') + '</div></div>' +
+      '<div class="theme-section"><div class="theme-section-label-plain">A股对应</div><div class="theme-tags">' + (t.china || []).map(function(s) { return '<span class="theme-tag china">' + s + '</span>'; }).join('') + '</div></div>' +
+      (t.verify ? '<div class="theme-verify">🔍 验证点：' + t.verify + '</div>' : '') +
     '</div>';
   }).join('');
 
@@ -1459,6 +1946,21 @@ function render(D) {
       '<div class="health-desc">' + r.desc + '</div>' +
     '</div>';
   }).join('');
+
+
+  // 术语解释（小白必看）
+  if (D.glossary && D.glossary.length > 0) {
+    var grid = document.getElementById('glossaryGrid');
+    if (grid) {
+      grid.innerHTML = D.glossary.map(function(g) {
+        return '<div class="glossary-item">' +
+          '<div class="glossary-term">' + g.term + '</div>' +
+          '<div class="glossary-full">' + g.full + '</div>' +
+          '<div class="glossary-meaning">' + g.meaning + '</div>' +
+        '</div>';
+      }).join('');
+    }
+  }
 
 
   // v8: 渲染机会分级（主题卡渲染完成后，统一一次性执行）
@@ -1533,6 +2035,49 @@ function tryRender(json, source) {
 }
 
 init();
+
+
+  // 主题视图切换
+  window.switchThemeView = function(view) {
+    var tabs = document.querySelectorAll('.theme-view-tab');
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    tabs.forEach(function(t) {
+      var txt = t.textContent;
+      if ((view === 'matrix' && txt.indexOf('矩阵') !== -1) || (view === 'list' && txt.indexOf('列表') !== -1)) {
+        t.classList.add('active');
+      }
+    });
+    var wrap1 = document.getElementById('themeMatrixWrap');
+    var wrap2 = document.getElementById('themeListWrap');
+    if (wrap1) wrap1.classList.remove('active');
+    if (wrap2) wrap2.classList.remove('active');
+    if (view === 'matrix' && wrap1) wrap1.classList.add('active');
+    if (view === 'list' && wrap2) wrap2.classList.add('active');
+  };
+
+  // 矩阵卡片点击：显示主题详情（弹窗或展开）
+  window.showThemeDetail = function(themeId) { if (typeof themeId === "object") { themeId = themeId.currentTarget.getAttribute("data-theme-id"); }
+    var t = (window.DASHBOARD_DATA && window.DASHBOARD_DATA.themes || []).find(function(x) { return x.id === themeId; });
+    if (!t) return;
+    var msg = '【' + t.name + '】\n\n';
+    msg += '长期逻辑：' + (t.longTerm || '') + '\n';
+    msg += '今日状态：' + (t.todayStatus || '') + '\n\n';
+    msg += '一句话：' + (t.logic || '') + '\n\n';
+    if (t.china) msg += 'A股：' + t.china.join('、') + '\n';
+    if (t.overseas) msg += '海外：' + t.overseas.join('、') + '\n';
+    if (t.verify) msg += '\n验证点：' + t.verify;
+    alert(msg);
+  };
+  // 事件委托：主题卡片点击
+  document.getElementById('themeMatrixWrap').addEventListener('click', function(e) {
+    var card = e.target.closest('.matrix-theme-card');
+    if (card) showThemeDetail(card.getAttribute('data-theme-id'));
+  });
+  document.getElementById('themeList').addEventListener('click', function(e) {
+    var card = e.target.closest('.theme-card');
+    if (card) highlightTheme(card.getAttribute('data-id'));
+  });
+
 
 </script>
 
