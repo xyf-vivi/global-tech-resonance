@@ -582,7 +582,7 @@
     border-radius: 8px; font-size: 0.82rem; color: var(--accent-red);
     line-height: 1.6;
   }
-  .action-guide-donot::before { content: '🚫 不做什么：'; font-weight: 700; }
+  .action-guide-donot::before { content: ''; }
 
 
   /* ===== P1-3: 2D主题矩阵 ===== */
@@ -690,9 +690,9 @@
 <!-- ===== 头部 ===== -->
 <div class="header">
   <h1 id="pageTitle">🌍 全球科技传导验证雷达</h1>
+  <div class="stage-badge" id="stageBadge" style="display:none;margin-bottom:4px;"></div>
   <div class="subtitle" id="pageSubtitle">看懂昨夜美股、今日A股、今晚美股如何互相影响，判断科技行情是继续扩散、局部分化，还是需要避险</div>
   <div class="update-time" id="updateTime">数据更新：加载中...<span class="health-indicator none" id="healthBadge" title="数据源健康检查结果"><span class="health-indicator-dot"></span><span id="healthBadgeText">未检查</span></span></div>
-  <div class="stage-badge" id="stageBadge" style="display:none;"></div>
 
 </div>
 
@@ -743,23 +743,23 @@
   <div class="card main-tabs-card always-visible">
     <div class="main-tabs">
       <button class="main-tab active" data-view="verify" onclick="switchView('verify')">
-        <span class="main-tab-icon">🔍</span>今天看什么
-        <span class="main-tab-desc">看明天A股科技能不能修复</span>
+        <span class="main-tab-icon">🔍</span><span id="tabVerifyTitle">盘中看什么</span>
+        <span class="main-tab-desc" id="tabVerifyDesc">看哪些信号正在被市场验证</span>
       </button>
       <button class="main-tab" data-view="theme" onclick="switchView('theme')">
-        <span class="main-tab-icon">🧩</span>哪些方向
-        <span class="main-tab-desc">哪些能跟踪，哪些先别追</span>
+        <span class="main-tab-icon">🧩</span><span id="tabThemeTitle">哪些方向在验证</span>
+        <span class="main-tab-desc" id="tabThemeDesc">分清主线、修复、分化和追高风险</span>
       </button>
       <button class="main-tab" data-view="chain" onclick="switchView('chain')">
-        <span class="main-tab-icon">🔗</span>发生了什么
-        <span class="main-tab-desc">美股点火后，A股怎么接</span>
+        <span class="main-tab-icon">🔗</span><span id="tabChainTitle">传导链走到哪了</span>
+        <span class="main-tab-desc" id="tabChainDesc">从昨夜美股到今天A股</span>
       </button>
     </div>
   </div>
 
   <!-- ===== Section 2：今天看什么 (verify + chain 视角可见) ===== -->
   <div class="card view-section visible" id="viewVerify">
-    <div class="section-subtitle">明天盯这几个信号</div>
+    <div class="section-subtitle" id="verifySectionSubtitle">盘中盯这几个信号</div>
     <div class="checklist" id="checklist"></div>
     <div class="color-legend">
       <span><span class="legend-dot green"></span>偏健康</span>
@@ -770,13 +770,13 @@
 
   <!-- ===== Section 3：为什么涨 (chain 视角可见) ===== -->
   <div class="card view-section" id="viewChain">
-    <div class="section-subtitle">美股点火后，全球科技链怎么传导 · 点击看详情</div>
+    <div class="section-subtitle" id="chainSectionSubtitle">从昨夜美股到今天A股，传导链走到哪一步 · 点击看详情</div>
     <div class="event-chain" id="eventChain"></div>
   </div>
 
   <!-- ===== Section 4：哪些方向 (theme + verify 视角可见) ===== -->
   <div class="card view-section" id="viewTheme">
-    <div class="section-subtitle">分清长期主线和明天能不能碰</div>
+    <div class="section-subtitle" id="themeSectionSubtitle">分清主线、修复、分化和追高风险</div>
         <div class="theme-view-tabs">
       <button class="theme-view-tab active" onclick="switchThemeView('matrix')">🧩 矩阵视图</button>
       <button class="theme-view-tab" onclick="switchThemeView('list')">📋 列表视图</button>
@@ -797,7 +797,7 @@
   <div class="card always-visible">
         <div class="card-title">
       <span class="icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan);">🩺</span>
-      风险分数
+      <span id="riskSectionTitle">盘中风险温度</span>
     </div>
     <div class="health-layer">
       <div class="health-summary" id="healthSummary"></div>
@@ -822,7 +822,7 @@
 
 <!-- ===== 底部 ===== -->
 <div class="footer">
-  美股带动A股验证看板 · 数据仅供参考，不构成投资建议 · 核心不是排行榜，而是帮你判断这轮行情还能不能跟
+  全球科技传导验证雷达 · 数据仅供观察，不构成投资建议 · 盘中数据会变化，请以最新更新时间为准
 </div>
 
 
@@ -1541,81 +1541,98 @@ function adaptData(json) {
 // ===== 渲染 =====
 function render(D) {
   // 阶段感知：根据 stage 更新页面标题、副标题、模块标题
+  // 核心原则：主标题永远固定，阶段标签和副标题随阶段变
   var stageConfig = {
     morning: {
-      pageTitleSuffix: '· 早盘机会版',
-      pageSubtitle: '看懂昨夜美股，判断今天A股科技怎么验证——跟涨、分化，还是先避险',
+      stageLabel: '早盘预判版',
       stageIcon: '🌅',
-      stageLabel: '早盘机会版',
-      stageNote: '看今天A股怎么验证昨晚美股信号'
+      stageNote: '看昨夜美股有没有点火，判断今天A股科技怎么验证',
+      pageSubtitle: '看昨夜美股有没有点火，判断今天A股科技怎么验证',
+      // 主tab
+      tabVerifyTitle: '今天看什么',
+      tabVerifyDesc: '今天A股科技能不能接住美股信号',
+      tabThemeTitle: '哪些方向',
+      tabThemeDesc: '分清主线、修复和分化',
+      tabChainTitle: '发生了什么',
+      tabChainDesc: '昨晚美股怎么点火的',
+      // 各模块
+      verifySubtitle: '今天盯这几个信号',
+      verifySubtitleDesc: '这些信号决定今天科技行情是修复、分化还是走弱',
+      chainSubtitle: '昨晚美股怎么点火的 · 点击看详情',
+      themeSubtitle: '分清主线、修复和分化，今天哪些方向能跟踪',
+      riskTitle: '今日风险温度',
+      // 行动区
+      actionLabel: '今日策略'
     },
     midday: {
-      pageTitleSuffix: '· 盘中验证版',
-      pageSubtitle: '对照上午信号，看哪些方向已确认强势，哪些下午继续验证',
+      stageLabel: '盘中跟踪版',
       stageIcon: '📊',
-      stageLabel: '盘中验证版',
-      stageNote: '上午验证完成，下午继续观察'
+      stageNote: '盘中数据会变化，跟踪主线是修复、分化还是转弱',
+      pageSubtitle: '跟踪A股科技有没有接住美股，判断主线是修复、分化，还是转弱',
+      tabVerifyTitle: '盘中看什么',
+      tabVerifyDesc: '看哪些信号正在被市场验证',
+      tabThemeTitle: '哪些方向在验证',
+      tabThemeDesc: '分清主线、修复、分化和追高风险',
+      tabChainTitle: '传导链走到哪了',
+      tabChainDesc: '从昨夜美股到今天A股',
+      verifySubtitle: '盘中盯这几个信号',
+      verifySubtitleDesc: '这些信号决定今天科技行情是继续修复，还是冲高回落',
+      chainSubtitle: '从昨夜美股到今天A股，传导链走到哪一步 · 点击看详情',
+      themeSubtitle: '分清主线、修复、分化和追高风险',
+      riskTitle: '盘中风险温度',
+      actionLabel: '当前动作'
     },
     evening: {
-      pageTitleSuffix: '· 盘后复盘版',
-      pageSubtitle: '全天数据已汇总，预判今晚美股和明日A股方向',
-      stageIcon: '✅',
       stageLabel: '盘后复盘版',
-      stageNote: '全天收完，预判明天A股科技能不能继续'
+      stageIcon: '✅',
+      stageNote: '复盘全天传导结果，预判今晚美股和明日A股',
+      pageSubtitle: '复盘今天A股科技传导结果，预判今晚美股和明日A股验证方向',
+      tabVerifyTitle: '复盘看什么',
+      tabVerifyDesc: '今天哪些信号最终确认了',
+      tabThemeTitle: '哪些方向验证了',
+      tabThemeDesc: '主线、修复、分化，哪些经受了验证',
+      tabChainTitle: '全天传导链',
+      tabChainDesc: '从昨晚美股到今天A股收盘',
+      verifySubtitle: '今天这几个信号的结果',
+      verifySubtitleDesc: '对照看今天的验证结果，预判明天',
+      chainSubtitle: '全天事件时间线 · 从昨晚美股到今天A股收盘 · 点击节点看详情',
+      themeSubtitle: '今日复盘 · 哪些方向经受住了验证，哪些需要明天继续观察',
+      riskTitle: '收盘风险温度',
+      actionLabel: '明日观察'
     }
   };
-  var sc = stageConfig[D.stage.type] || stageConfig.evening;
+  var sc = stageConfig[D.stage.type] || stageConfig.midday;
 
-  // 动态更新页面标题和副标题
+  // 主标题永远固定，不跟阶段变；阶段信息用 badge 和副标题表达
   var titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = '🌍 全球科技传导验证雷达';
+
+  // 副标题随阶段变
   var subtitleEl = document.getElementById('pageSubtitle');
-  if (titleEl) titleEl.innerHTML = '🌍 全球科技传导验证雷达<span style="font-size:0.65em;color:var(--accent-cyan);margin-left:8px;">' + sc.pageTitleSuffix + '</span>';
   if (subtitleEl) subtitleEl.textContent = sc.pageSubtitle;
 
-  // 更新阶段badge（更完整的信息）
+  // 阶段badge：放在副标题上方，显示阶段标签
   var stageEl = document.getElementById('stageBadge');
-  if (stageEl && D.stage) {
+  if (stageEl) {
     stageEl.style.display = 'inline-flex';
-    stageEl.innerHTML = '<span class="stage-icon">' + sc.stageIcon + '</span>' + sc.stageLabel + '<span class="stage-note">' + sc.stageNote + '</span>';
-    stageEl.title = '当前数据阶段：' + sc.stageLabel + '\n' + sc.stageNote;
+    stageEl.innerHTML = '<span class="stage-icon">' + sc.stageIcon + '</span>' + sc.stageLabel;
+    stageEl.title = sc.stageNote;
   }
 
-  var stageTitles = {
-    morning: {
-      section2Title: '今天A股科技能不能接住昨晚美股信号？对照下面几条看',
-      section3Title: '昨晚美股点火后，A股怎么接 · 点击看详情',
-      section4Title: '哪些能跟踪，哪些先别追 · 分清长期主线和今天能不能碰'
-    },
-    midday: {
-      section2Title: '上午验证结果出来了没？对照下面看哪些信号已经确认',
-      section3Title: '今天上午全球市场怎么传导的 · 点击节点看详情',
-      section4Title: '上午哪些方向已经验证强势 · 分清主线和分化'
-    },
-    evening: {
-      section2Title: '全天信号最终确认 · 对照看今天的验证结果',
-      section3Title: '全天事件时间线 · 从昨晚美股到今天A股的完整传导 · 点击节点看详情',
-      section4Title: '今日复盘 · 哪些方向经受住了验证，哪些需要明天继续观察'
-    }
-  };
-  var st = stageTitles[D.stage.type] || stageTitles.evening;
+  // 更新主Tab文字
+  function setElText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+  setElText('tabVerifyTitle', sc.tabVerifyTitle);
+  setElText('tabVerifyDesc', sc.tabVerifyDesc);
+  setElText('tabThemeTitle', sc.tabThemeTitle);
+  setElText('tabThemeDesc', sc.tabThemeDesc);
+  setElText('tabChainTitle', sc.tabChainTitle);
+  setElText('tabChainDesc', sc.tabChainDesc);
 
-  // 更新 Section 2 标题
-  var s2title = document.querySelector('#viewVerify .card-title');
-  if (s2title) s2title.innerHTML = '<span class="icon" style="background:rgba(245,158,11,0.15);color:var(--accent-yellow);">🔍</span>' + st.section2Title;
-  // 更新 Section 3 标题
-  var s3title = document.querySelector('#viewChain .card-title');
-  if (s3title) s3title.innerHTML = '<span class="icon" style="background:rgba(16,185,129,0.15);color:var(--accent-green);">⚡</span>' + st.section3Title;
-  // 更新 Section 4 标题
-  var s4title = document.querySelector('#viewTheme .card-title');
-  if (s4title) s4title.innerHTML = '<span class="icon" style="background:rgba(139,92,246,0.15);color:var(--accent-purple);">🧩</span>' + st.section4Title;
-
-  // 更新头部 stage badge
-  var stageEl = document.getElementById('stageBadge');
-  if (stageEl && D.stage) {
-    var stageIcons = { morning: '🌅', midday: '📊', evening: '✅' };
-    stageEl.style.display = 'inline-flex';
-    stageEl.innerHTML = '<span class="stage-icon">' + (stageIcons[D.stage.type] || '📊') + '</span>' + D.stage.label + '<span class="stage-note">' + D.stage.goal + '</span>';
-  }
+  // 更新各模块副标题
+  setElText('verifySectionSubtitle', sc.verifySubtitle);
+  setElText('chainSectionSubtitle', sc.chainSubtitle);
+  setElText('themeSectionSubtitle', sc.themeSubtitle);
+  setElText('riskSectionTitle', sc.riskTitle);
   // 更新时间
   var timeEl = document.getElementById('updateTime');
   timeEl.innerHTML = '';
@@ -1697,11 +1714,11 @@ function render(D) {
       return '<span class="' + cls + '">' + w + '</span>';
     }).join('');
     
-    // 根据 stage 动态显示策略文案
-    var stageType = (D.stage && D.stage.type) || 'evening';
-    var strategyLabel = stageType === 'morning' ? '今日策略' : stageType === 'midday' ? '下午看什么' : '明日观察';
-    var watchLabel = stageType === 'morning' ? '今天看什么' : stageType === 'midday' ? '下午看什么' : '明天看什么';
-    var donotLabel = stageType === 'morning' ? '今天别做' : stageType === 'midday' ? '下午别做' : '明天别急做';
+    // 根据 stage 动态显示策略文案（标题用阶段标签，watch/donot统一语感）
+    var stageType = (D.stage && D.stage.type) || 'midday';
+    var strategyLabel = sc.actionLabel;
+    var watchLabel = '关注信号';
+    var donotLabel = '注意';
     
     agEl.innerHTML = ''
       + '<div class="action-guide-header">'
